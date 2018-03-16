@@ -14,11 +14,19 @@ namespace RU.Challenge.Domain.Entities
             Name = name;
         }
 
+        private Genre(Genre other) : this()
+        {
+            Id = other.Id;
+            Name = other.Name;
+        }
+
         private Genre()
         {
         }
 
-        public static Genre Create(string name)
-            => new Genre(Guid.NewGuid(), name);
+        public Genre Clone() => new Genre(this);
+
+        public static Genre Create(Guid id, string name)
+            => new Genre(id, name);
     }
 }

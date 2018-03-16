@@ -53,10 +53,23 @@ namespace RU.Challenge.Domain.Entities
             CoverArtUrl = coverArtUrl;
         }
 
+        private Release(Release other) : this()
+        {
+            Id = other.Id;
+            Title = other.Title;
+            Artist = other.Artist;
+            Genre = other.Genre;
+            CoverArtUrl = other.CoverArtUrl;
+            Tracks = other.Tracks;
+            Subscription = other.Subscription;
+        }
+
         private Release()
             => Tracks = ImmutableList.Create<Track>();
 
-        public static Release Create(string title, Artist artist, Genre genre, string coverArtUrl)
-            => new Release(Guid.NewGuid(), title, artist, genre, coverArtUrl);
+        public Release Clone() => new Release(this);
+
+        public static Release Create(Guid id, string title, Artist artist, Genre genre, string coverArtUrl)
+            => new Release(id, title, artist, genre, coverArtUrl);
     }
 }

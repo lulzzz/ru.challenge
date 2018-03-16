@@ -14,11 +14,19 @@ namespace RU.Challenge.Domain.Entities
             Name = name;
         }
 
+        private PaymentMethod(PaymentMethod other) : this()
+        {
+            Id = other.Id;
+            Name = other.Name;
+        }
+
         private PaymentMethod()
         {
         }
 
-        public static PaymentMethod Create(string name)
-            => new PaymentMethod(Guid.NewGuid(), name);
+        public PaymentMethod Clone() => new PaymentMethod(this);
+
+        public static PaymentMethod Create(Guid id, string name)
+            => new PaymentMethod(id, name);
     }
 }

@@ -1,13 +1,12 @@
 ﻿using AutoFixture;
 using FluentAssertions;
-using RU.Challenge.Domain.Entities;
 using RU.Challenge.Domain.Exceptions;
 using RU.Challenge.Fixtures.Attributes;
 using System;
 using System.Linq;
 using Xunit;
 
-namespace RU.Challenge.Domain
+namespace RU.Challenge.Domain.Entities
 {
     public class ReleaseTests
     {
@@ -19,6 +18,7 @@ namespace RU.Challenge.Domain
                     paramName: "expirationDate", value: DateTimeOffset.Now.AddYears(1));
             }
         }
+
         public class ExpiredSubcriptionCustomization : ICustomization
         {
             public void Customize(IFixture fixture)
@@ -28,26 +28,37 @@ namespace RU.Challenge.Domain
             }
         }
 
-
-
         [Theory(DisplayName = "Release should be created with expected params")]
         [DefaultData]
         public void ReleaseShouldBeCreatedWithExpectedParams(
+            Guid id,
             string title,
             Artist artist,
             Genre genre,
             string coverArtUrl)
         {
             // Exercise
-            var actual = Release.Create(title, artist, genre, coverArtUrl);
+            var actual = Release.Create(id, title, artist, genre, coverArtUrl);
 
             // Verify outcome
+            actual.Id.Should().Be(id);
             actual.Title.Should().Be(title);
             actual.Artist.Should().Be(artist);
             actual.Genre.Should().Be(genre);
             actual.CoverArtUrl.Should().Be(coverArtUrl);
-            actual.Id.Should().NotBeEmpty();
             actual.Tracks.Should().BeEmpty();
+        }
+
+        [Theory(DisplayName = "Clone release should generate other release instance")]
+        [DefaultData]
+        public void CloneReleaseShouldGenerateOtherReleaseInstance(Release release)
+        {
+            // Exercise
+            var actual = release.Clone();
+
+            // Verify outcome
+            actual.Should().NotBe(release);
+            actual.Should().BeEquivalentTo(release);
         }
 
         [Theory(DisplayName = "Release should contain added track with sequential order")]

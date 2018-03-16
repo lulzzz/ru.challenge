@@ -14,11 +14,19 @@ namespace RU.Challenge.Domain.Entities
             Name = name;
         }
 
+        private DistributionPlatform(DistributionPlatform other) : this()
+        {
+            Id = other.Id;
+            Name = other.Name;
+        }
+
         private DistributionPlatform()
         {
         }
 
-        public static DistributionPlatform Create(string name)
-            => new DistributionPlatform(Guid.NewGuid(), name);
+        public DistributionPlatform Clone() => new DistributionPlatform(this);
+
+        public static DistributionPlatform Create(Guid id, string name)
+            => new DistributionPlatform(id, name);
     }
 }

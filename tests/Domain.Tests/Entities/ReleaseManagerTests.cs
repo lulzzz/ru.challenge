@@ -1,11 +1,10 @@
 ﻿using FluentAssertions;
-using RU.Challenge.Domain.Entities;
 using RU.Challenge.Fixtures.Attributes;
 using System;
 using System.Linq;
 using Xunit;
 
-namespace RU.Challenge.Domain
+namespace RU.Challenge.Domain.Entities
 {
     public class ReleaseManagerTests
     {
@@ -21,10 +20,22 @@ namespace RU.Challenge.Domain
             actual.Releases.Should().BeEmpty();
         }
 
+        [Theory(DisplayName = "Clone release manager should generate other release manager instance")]
+        [DefaultData]
+        public void CloneReleaseManagerShouldGenerateOtherReleaseManagerInstance(ReleaseManager releaseManager)
+        {
+            // Exercise
+            var actual = releaseManager.Clone();
+
+            // Verify outcome
+            actual.Should().NotBe(releaseManager);
+            actual.Should().BeEquivalentTo(releaseManager);
+        }
+
         [Theory(DisplayName = "Release manager should contain added release")]
         [DefaultData]
         public void TrackOrderShouldBeCorrectlyAssigned(
-            ReleaseManager releaseManager, 
+            ReleaseManager releaseManager,
             Release release)
         {
             // Pre condition

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 
 namespace RU.Challenge.Domain.Entities
@@ -25,19 +24,31 @@ namespace RU.Challenge.Domain.Entities
         {
             Id = id;
             PaymentMethod = paymentMethod;
-            DistributionPlatforms = distributionPlatforms.ToImmutableList();
+            DistributionPlatforms = distributionPlatforms;
             ExpirationDate = expirationDate;
             Amount = amount;
+        }
+
+        private Subscription(Subscription other) : this()
+        {
+            Id = other.Id;
+            PaymentMethod = other.PaymentMethod;
+            DistributionPlatforms = other.DistributionPlatforms;
+            ExpirationDate = other.ExpirationDate;
+            Amount = other.Amount;
         }
 
         private Subscription()
             => DistributionPlatforms = ImmutableList.Create<DistributionPlatform>();
 
+        public Subscription Clone() => new Subscription(this);
+
         public static Subscription Create(
+            Guid id,
             PaymentMethod paymentMethod,
             IImmutableList<DistributionPlatform> distributionPlatforms,
             DateTimeOffset expirationDate,
             decimal amount)
-            => new Subscription(Guid.NewGuid(), paymentMethod, distributionPlatforms, expirationDate, amount);
+            => new Subscription(id, paymentMethod, distributionPlatforms, expirationDate, amount);
     }
 }

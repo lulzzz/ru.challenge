@@ -15,8 +15,16 @@ namespace RU.Challenge.Domain.Entities
         private ReleaseManager(Guid id) : this()
             => Id = id;
 
+        private ReleaseManager(ReleaseManager other) : this()
+        {
+            Id = other.Id;
+            Releases = other.Releases;
+        }
+
         private ReleaseManager()
             => Releases = ImmutableList.Create<Release>();
+
+        public ReleaseManager Clone() => new ReleaseManager(this);
 
         public static ReleaseManager Create(Guid id)
             => new ReleaseManager(id);

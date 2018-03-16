@@ -27,12 +27,23 @@ namespace RU.Challenge.Domain.Entities
             Genre = genre;
             Artist = artist;
         }
+        private Track(Track other) : this()
+        {
+            Id = other.Id;
+            Name = other.Name;
+            SongUrl = other.SongUrl;
+            Genre = other.Genre;
+            Artist = other.Artist;
+            Order = other.Order;
+        }
 
         private Track()
         {
         }
 
-        public static Track Create(string name, string songUrl, Genre genre, Artist artist)
-            => new Track(Guid.NewGuid(), name, songUrl, genre, artist);
+        public Track Clone() => new Track(this);
+
+        public static Track Create(Guid id, string name, string songUrl, Genre genre, Artist artist)
+            => new Track(id, name, songUrl, genre, artist);
     }
 }

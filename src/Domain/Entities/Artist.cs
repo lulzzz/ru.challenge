@@ -17,11 +17,20 @@ namespace RU.Challenge.Domain.Entities
             Name = name;
         }
 
+        private Artist(Artist other) : this()
+        {
+            Id = other.Id;
+            Age = other.Age;
+            Name = other.Name;
+        }
+
         private Artist()
         {
         }
 
-        public static Artist Create(int age, string name)
-            => new Artist(Guid.NewGuid(), age, name);
+        public Artist Clone() => new Artist(this);
+
+        public static Artist Create(Guid id, int age, string name)
+            => new Artist(id, age, name);
     }
 }
