@@ -1,7 +1,8 @@
-﻿using System;
+﻿using RU.Challenge.Domain.Commands;
+using System;
 using System.Collections.Generic;
 
-namespace RU.Challenge.Domain.Commands
+namespace RU.Challenge.Infrastructure.Akka.Events
 {
     public class CreateSubscriptionEvent
     {

@@ -18,8 +18,8 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             CreateDistributionPlatformCommand createDistributionPlatformCommand)
         {
             // Setup
-            var distributionPlatformActor = Sys.ActorOf(DistributionPlatformActor.GetProps(id));
             var probe = CreateTestProbe();
+            var distributionPlatformActor = Sys.ActorOf(DistributionPlatformActor.GetProps(id));
 
             // Exercise
             distributionPlatformActor.Tell(createDistributionPlatformCommand, TestActor);

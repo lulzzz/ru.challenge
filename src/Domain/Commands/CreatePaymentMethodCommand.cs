@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RU.Challenge.Domain.Commands
+﻿namespace RU.Challenge.Domain.Commands
 {
     public class CreatePaymentMethodCommand
     {

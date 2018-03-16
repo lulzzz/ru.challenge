@@ -18,8 +18,8 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             CreatePaymentMethodCommand createPaymentMethodCommand)
         {
             // Setup
-            var paymentMethodActor = Sys.ActorOf(PaymentMethodActor.GetProps(id));
             var probe = CreateTestProbe();
+            var paymentMethodActor = Sys.ActorOf(PaymentMethodActor.GetProps(id));
 
             // Exercise
             paymentMethodActor.Tell(createPaymentMethodCommand, TestActor);

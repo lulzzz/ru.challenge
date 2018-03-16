@@ -18,8 +18,8 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             CreateGenreCommand createGenreCommand)
         {
             // Setup
-            var genreActor = Sys.ActorOf(GenreActor.GetProps(id));
             var probe = CreateTestProbe();
+            var genreActor = Sys.ActorOf(GenreActor.GetProps(id));
 
             // Exercise
             genreActor.Tell(createGenreCommand, TestActor);

@@ -18,8 +18,8 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             CreateArtistCommand createArtistCommand)
         {
             // Setup
-            var artistActor = Sys.ActorOf(ArtistActor.GetProps(id));
             var probe = CreateTestProbe();
+            var artistActor = Sys.ActorOf(ArtistActor.GetProps(id));
 
             // Exercise
             artistActor.Tell(createArtistCommand, TestActor);

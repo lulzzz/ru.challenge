@@ -16,34 +16,27 @@ namespace RU.Challenge.Domain.Entities
 
         public string SongUrl { get; private set; }
 
-        public void SetOrder(int order)
+        public void SetOrder(int? order)
             => Order = order;
 
-        private Track(Guid id, string name, string songUrl, Genre genre, Artist artist) : this()
+        public void SetArtist(Artist artist)
+            => Artist = artist;
+
+        public void SetGenre(Genre genre)
+            => Genre = genre;
+
+        private Track(Guid id, string name, string songUrl) : this()
         {
             Id = id;
             Name = name;
             SongUrl = songUrl;
-            Genre = genre;
-            Artist = artist;
-        }
-        private Track(Track other) : this()
-        {
-            Id = other.Id;
-            Name = other.Name;
-            SongUrl = other.SongUrl;
-            Genre = other.Genre;
-            Artist = other.Artist;
-            Order = other.Order;
         }
 
         private Track()
         {
         }
 
-        public Track Clone() => new Track(this);
-
-        public static Track Create(Guid id, string name, string songUrl, Genre genre, Artist artist)
-            => new Track(id, name, songUrl, genre, artist);
+        public static Track Create(Guid id, string name, string songUrl)
+            => new Track(id, name, songUrl);
     }
 }

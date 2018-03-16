@@ -1,10 +1,12 @@
 ﻿using Akka.Actor;
 using Akka.Persistence;
 using RU.Challenge.Domain.Commands;
+using RU.Challenge.Infrastructure.Akka.Events;
 using RU.Challenge.Infrastructure.Akka.Snapshot;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace RU.Challenge.Infrastructure.Akka.Actors
 {
@@ -39,15 +41,8 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
                     return true;
 
                 case "state":
+                    PopulateDependencies();
                     Sender.Tell(_state);
-                    return true;
-
-                case Domain.Entities.PaymentMethod paymentMethod:
-                    _state.SetPaymentMethod(paymentMethod);
-                    return true;
-
-                case Domain.Entities.DistributionPlatform distributionPlatform:
-                    _state.AddDistributionPlatform(distributionPlatform);
                     return true;
             }
 
@@ -67,7 +62,6 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
                     _paymentMethodId = snapshot.PaymentMethodId;
                     _distributionPlatformsId = snapshot.DistributionPlatformIds.ToList();
                     _state = Domain.Entities.Subscription.Create(snapshot.Id, snapshot.ExpirationDate, snapshot.Amount);
-                    PopulateDependencies();
                     return true;
             }
 
@@ -86,19 +80,21 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             _paymentMethodId = createSubscriptionEvent.PaymentMethodId;
             _distributionPlatformsId = createSubscriptionEvent.DistributionPlatformsIds.ToList();
             _state = Domain.Entities.Subscription.Create(createSubscriptionEvent.Id, createSubscriptionEvent.ExpirationDate, createSubscriptionEvent.Amount);
-            PopulateDependencies();
         }
 
         private void PopulateDependencies()
         {
-            Context.ActorOf(PaymentMethodActor.GetProps(_paymentMethodId)).Tell("state", Self);
+            var tPayment = Context.ActorOf(PaymentMethodActor.GetProps(_paymentMethodId)).Ask<Domain.Entities.PaymentMethod>("state");
+            var tPlatforms = _distributionPlatformsId.Select(e => Context.ActorOf(DistributionPlatformActor.GetProps(e)).Ask<Domain.Entities.DistributionPlatform>("state"));
 
-            foreach (var distPlatfId in _distributionPlatformsId)
-                Context.ActorOf(DistributionPlatformActor.GetProps(distPlatfId)).Tell("state", Self);
+            Task.WhenAll(new Task[] { tPayment, }.Concat(tPlatforms)).GetAwaiter().GetResult();
+
+            _state.SetPaymentMethod(tPayment.Result);
+            foreach (var tPlat in tPlatforms)
+                _state.AddDistributionPlatform(tPlat.Result);
         }
 
         public static Props GetProps(Guid id)
             => Props.Create(() => new SubscriptionActor(id));
-
     }
 }

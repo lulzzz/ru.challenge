@@ -1,5 +1,4 @@
 ﻿using Akka.TestKit.Xunit2;
-using AutoFixture;
 using FluentAssertions;
 using RU.Challenge.Domain.Commands;
 using RU.Challenge.Fixtures.Attributes;
@@ -27,7 +26,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             var probe = CreateTestProbe();
 
             CreateRelatedPaymentAndDistributionPlatforms(
-                createPaymentMethodCommand, 
+                createPaymentMethodCommand,
                 createDistributionPlatformCommands,
                 createSubscriptionCommand);
 
@@ -89,7 +88,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
 
         [Theory(DisplayName = "Subscription actor should recover successfully (snapshot)")]
         [DefaultData]
-        public void SubscriptionMethodActorShouldRecoverSuccessfullySnapshot(
+        public void SubscriptionActorShouldRecoverSuccessfullySnapshot(
             CreatePaymentMethodCommand createPaymentMethodCommand,
             IEnumerable<CreateDistributionPlatformCommand> createDistributionPlatformCommands,
             SubscriptionAggregateSnapshot subscriptionSnapshot)
