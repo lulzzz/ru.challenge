@@ -1,7 +1,6 @@
 ﻿using FluentAssertions;
 using RU.Challenge.Fixtures.Attributes;
 using System;
-using System.Collections.Immutable;
 using Xunit;
 
 namespace RU.Challenge.Domain.Entities
@@ -12,32 +11,44 @@ namespace RU.Challenge.Domain.Entities
         [DefaultData]
         public void SubscriptionShouldBeCreatedWithExpectedParams(
             Guid id,
-            PaymentMethod paymentMethod,
-            IImmutableList<DistributionPlatform> distributionPlatforms,
             DateTimeOffset expirationDate,
             decimal amount)
         {
             // Exercise
-            var actual = Subscription.Create(id, paymentMethod, distributionPlatforms, expirationDate, amount);
+            var actual = Subscription.Create(id, expirationDate, amount);
 
             // Verify outcome
             actual.Id.Should().Be(id);
-            actual.PaymentMethod.Should().Be(paymentMethod);
-            actual.DistributionPlatforms.Should().AllBeEquivalentTo(distributionPlatforms);
             actual.ExpirationDate.Should().Be(expirationDate);
             actual.Amount.Should().Be(amount);
         }
 
-        [Theory(DisplayName = "Clone subscription should generate other subscription instance")]
+        [Theory(DisplayName = "Subscription should contain added payment method")]
         [DefaultData]
-        public void CloneSubscriptionShouldGenerateOtherSubscriptionInstance(Subscription subscription)
+        public void SubscriptionShouldContainAddedPaymentMethod(
+            Subscription subscription, PaymentMethod paymentMethod)
         {
             // Exercise
-            var actual = subscription.Clone();
+            subscription.SetPaymentMethod(paymentMethod);
 
             // Verify outcome
-            actual.Should().NotBe(subscription);
-            actual.Should().BeEquivalentTo(subscription);
+            subscription.PaymentMethod.Should().Be(paymentMethod);
+        }
+
+        [Theory(DisplayName = "Subscription should contain added distribution platforms")]
+        [DefaultData]
+        public void SubscriptionShouldContainAddedDistributionPlatforms(
+            Subscription subscription, DistributionPlatform dp1, DistributionPlatform dp2)
+        {
+            // Pre condition
+            subscription.DistributionPlatforms.Should().BeEmpty();
+
+            // Exercise
+            subscription.AddDistributionPlatform(dp1);
+            subscription.AddDistributionPlatform(dp2);
+
+            // Verify outcome
+            subscription.DistributionPlatforms.Should().ContainInOrder(dp1, dp2);
         }
     }
 }

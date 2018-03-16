@@ -25,14 +25,11 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             artistActor.Tell(createArtistCommand, TestActor);
 
             // Verify outcome
-            Within(TimeSpan.FromSeconds(3), () =>
-            {
-                artistActor.Tell("state", TestActor);
-                var actual = ExpectMsg<Domain.Entities.Artist>(TimeSpan.FromSeconds(10));
-                actual.Id.Should().Be(id);
-                actual.Age.Should().Be(createArtistCommand.Age);
-                actual.Name.Should().Be(createArtistCommand.Name);
-            });
+            artistActor.Tell("state", TestActor);
+            var actual = ExpectMsg<Domain.Entities.Artist>();
+            actual.Id.Should().Be(id);
+            actual.Age.Should().Be(createArtistCommand.Age);
+            actual.Name.Should().Be(createArtistCommand.Name);
         }
 
         [Theory(DisplayName = "Artist actor should recover successfully (journal)")]
@@ -51,7 +48,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
 
             // Verify outcome
             artistActor.Tell("state", TestActor);
-            var actual = ExpectMsg<Domain.Entities.Artist>(TimeSpan.FromSeconds(3));
+            var actual = ExpectMsg<Domain.Entities.Artist>();
             actual.Id.Should().Be(id);
             actual.Age.Should().Be(createArtistCommand.Age);
             actual.Name.Should().Be(createArtistCommand.Name);
@@ -71,7 +68,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
 
             // Verify outcome
             artistActor.Tell("state", TestActor);
-            var actual = ExpectMsg<Domain.Entities.Artist>(TimeSpan.FromSeconds(3));
+            var actual = ExpectMsg<Domain.Entities.Artist>();
             actual.Id.Should().Be(artist.Id);
             actual.Age.Should().Be(artist.Age);
             actual.Name.Should().Be(artist.Name);

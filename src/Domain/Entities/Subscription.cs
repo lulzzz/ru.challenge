@@ -15,40 +15,29 @@ namespace RU.Challenge.Domain.Entities
 
         public decimal Amount { get; private set; }
 
+        public void SetPaymentMethod(PaymentMethod paymentMethod)
+            => PaymentMethod = paymentMethod;
+
+        public void AddDistributionPlatform(DistributionPlatform distributionPlatform)
+            => DistributionPlatforms = DistributionPlatforms.Add(distributionPlatform);
+
         private Subscription(
             Guid id,
-            PaymentMethod paymentMethod,
-            IImmutableList<DistributionPlatform> distributionPlatforms,
             DateTimeOffset expirationDate,
             decimal amount) : this()
         {
             Id = id;
-            PaymentMethod = paymentMethod;
-            DistributionPlatforms = distributionPlatforms;
             ExpirationDate = expirationDate;
             Amount = amount;
-        }
-
-        private Subscription(Subscription other) : this()
-        {
-            Id = other.Id;
-            PaymentMethod = other.PaymentMethod;
-            DistributionPlatforms = other.DistributionPlatforms;
-            ExpirationDate = other.ExpirationDate;
-            Amount = other.Amount;
         }
 
         private Subscription()
             => DistributionPlatforms = ImmutableList.Create<DistributionPlatform>();
 
-        public Subscription Clone() => new Subscription(this);
-
         public static Subscription Create(
             Guid id,
-            PaymentMethod paymentMethod,
-            IImmutableList<DistributionPlatform> distributionPlatforms,
             DateTimeOffset expirationDate,
             decimal amount)
-            => new Subscription(id, paymentMethod, distributionPlatforms, expirationDate, amount);
+            => new Subscription(id, expirationDate, amount);
     }
 }

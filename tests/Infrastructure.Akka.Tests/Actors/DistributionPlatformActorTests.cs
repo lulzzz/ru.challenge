@@ -25,13 +25,10 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             distributionPlatformActor.Tell(createDistributionPlatformCommand, TestActor);
 
             // Verify outcome
-            Within(TimeSpan.FromSeconds(3), () =>
-            {
-                distributionPlatformActor.Tell("state", TestActor);
-                var actual = ExpectMsg<Domain.Entities.DistributionPlatform>(TimeSpan.FromSeconds(10));
-                actual.Id.Should().Be(id);
-                actual.Name.Should().Be(createDistributionPlatformCommand.Name);
-            });
+            distributionPlatformActor.Tell("state", TestActor);
+            var actual = ExpectMsg<Domain.Entities.DistributionPlatform>();
+            actual.Id.Should().Be(id);
+            actual.Name.Should().Be(createDistributionPlatformCommand.Name);
         }
 
         [Theory(DisplayName = "Distribution platform actor should recover successfully (journal)")]
@@ -50,7 +47,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
 
             // Verify outcome
             distributionPlatformActor.Tell("state", TestActor);
-            var actual = ExpectMsg<Domain.Entities.DistributionPlatform>(TimeSpan.FromSeconds(3));
+            var actual = ExpectMsg<Domain.Entities.DistributionPlatform>();
             actual.Id.Should().Be(id);
             actual.Name.Should().Be(createDistributionPlatformCommand.Name);
         }
@@ -69,7 +66,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
 
             // Verify outcome
             distributionPlatformActor.Tell("state", TestActor);
-            var actual = ExpectMsg<Domain.Entities.DistributionPlatform>(TimeSpan.FromSeconds(3));
+            var actual = ExpectMsg<Domain.Entities.DistributionPlatform>();
             actual.Id.Should().Be(distributionPlatform.Id);
             actual.Name.Should().Be(distributionPlatform.Name);
         }
