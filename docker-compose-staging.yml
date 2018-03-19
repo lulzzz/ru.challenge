@@ -1,0 +1,53 @@
+version: '3'
+services:   
+     
+  postgresread:
+    image: postgres:9.6
+    restart: always
+    ports:
+      - 5433:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ruread
+    volumes:
+      - pg-data:/var/lib/postgresql961/data
+    networks:
+      - default
+      
+  postgreswrite:
+    image: postgres:9.6
+    restart: always
+    ports:
+      - 5434:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ruwrite
+    volumes:
+      - pg-data2:/var/lib/postgresql961/data
+    networks:
+      - default
+      
+  app:
+    image: ruchallenge
+    build: .
+    ports:
+      - 9001:80
+    links:
+      - postgresread
+      - postgreswrite
+    volumes:
+      - logs:/app/logs
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Staging
+    networks:
+      - default
+        
+volumes:
+  pg-data:
+  pg-data2:
+  logs:
+    external: true
+networks:
+  default:
