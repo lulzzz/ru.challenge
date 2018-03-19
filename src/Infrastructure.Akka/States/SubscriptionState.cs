@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace RU.Challenge.Infrastructure.Akka.Snapshot
 {
-    public class SubscriptionAggregateSnapshot
+    public class SubscriptionState
     {
         public Guid Id { get; private set; }
 
@@ -16,7 +16,7 @@ namespace RU.Challenge.Infrastructure.Akka.Snapshot
         // For some reason the snapshot does not like IEnumerable but IList yes
         public IList<Guid> DistributionPlatformIds { get; private set; }
 
-        public SubscriptionAggregateSnapshot(
+        public SubscriptionState(
             Guid id,
             DateTimeOffset expirationDate,
             decimal amount,

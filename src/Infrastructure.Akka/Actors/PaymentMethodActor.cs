@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using Akka.Persistence;
 using RU.Challenge.Domain.Commands;
-using RU.Challenge.Infrastructure.Akka.Events;
+using RU.Challenge.Domain.Events;
 using System;
 
 namespace RU.Challenge.Infrastructure.Akka.Actors
@@ -21,17 +21,14 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             switch (message)
             {
                 case CreatePaymentMethodCommand createPaymentMethodCommand:
-                    var createArtistEvent = CreatePaymentMethodEvent.CreateFromCommand(createPaymentMethodCommand, _id);
-                    Persist(createArtistEvent, CreatePaymentMethodEventHandler);
+                    var createPaymentMethodEvent = CreatePaymentMethodEvent.CreateFromCommand(createPaymentMethodCommand, _id);
+                    Persist(createPaymentMethodEvent, CreatePaymentMethodEventHandler);
+                    Context.System.EventStream.Publish(createPaymentMethodEvent);
                     SnapshotCheck();
                     return true;
 
                 case RecoveryCompleted recoveryCompleted:
                     Log.Info($"Artist with ID {PersistenceId} recovery completed");
-                    return true;
-
-                case "state":
-                    Sender.Tell(_state);
                     return true;
             }
 

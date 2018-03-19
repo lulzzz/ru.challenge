@@ -1,7 +1,7 @@
 ﻿using RU.Challenge.Domain.Commands;
 using System;
 
-namespace RU.Challenge.Infrastructure.Akka.Events
+namespace RU.Challenge.Domain.Events
 {
     public class CreatePaymentMethodEvent
     {

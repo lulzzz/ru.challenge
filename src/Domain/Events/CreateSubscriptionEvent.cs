@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace RU.Challenge.Infrastructure.Akka.Events
+namespace RU.Challenge.Domain.Events
 {
     public class CreateSubscriptionEvent
     {

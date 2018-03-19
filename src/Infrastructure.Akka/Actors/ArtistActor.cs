@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using Akka.Persistence;
 using RU.Challenge.Domain.Commands;
-using RU.Challenge.Infrastructure.Akka.Events;
+using RU.Challenge.Domain.Events;
 using System;
 
 namespace RU.Challenge.Infrastructure.Akka.Actors
@@ -23,15 +23,12 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
                 case CreateArtistCommand createArtistCommand:
                     var createArtistEvent = CreateArtistEvent.CreateFromCommand(createArtistCommand, _id);
                     Persist(createArtistEvent, CreateArtistEventHandler);
+                    Context.System.EventStream.Publish(createArtistEvent);
                     SnapshotCheck();
                     return true;
 
                 case RecoveryCompleted recoveryCompleted:
                     Log.Info($"Artist with ID {PersistenceId} recovery completed");
-                    return true;
-
-                case "state":
-                    Sender.Tell(_state);
                     return true;
             }
 

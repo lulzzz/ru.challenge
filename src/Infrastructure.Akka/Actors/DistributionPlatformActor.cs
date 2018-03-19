@@ -1,7 +1,7 @@
 ﻿using Akka.Actor;
 using Akka.Persistence;
 using RU.Challenge.Domain.Commands;
-using RU.Challenge.Infrastructure.Akka.Events;
+using RU.Challenge.Domain.Events;
 using System;
 
 namespace RU.Challenge.Infrastructure.Akka.Actors
@@ -21,17 +21,14 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             switch (message)
             {
                 case CreateDistributionPlatformCommand createDistributionPlatformCommand:
-                    var createArtistEvent = CreateDistributionPlatformEvent.CreateFromCommand(createDistributionPlatformCommand, _id);
-                    Persist(createArtistEvent, CreateDistributionPlatformEventHandler);
+                    var createDistributionPlatformEvent = CreateDistributionPlatformEvent.CreateFromCommand(createDistributionPlatformCommand, _id);
+                    Persist(createDistributionPlatformEvent, CreateDistributionPlatformEventHandler);
+                    Context.System.EventStream.Publish(createDistributionPlatformEvent);
                     SnapshotCheck();
                     return true;
 
                 case RecoveryCompleted recoveryCompleted:
                     Log.Info($"Artist with ID {PersistenceId} recovery completed");
-                    return true;
-
-                case "state":
-                    Sender.Tell(_state);
                     return true;
             }
 

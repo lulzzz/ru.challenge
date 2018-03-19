@@ -1,28 +1,20 @@
 ﻿using Akka.Actor;
 using Akka.Persistence;
 using RU.Challenge.Domain.Commands;
-using RU.Challenge.Infrastructure.Akka.Events;
+using RU.Challenge.Domain.Events;
 using RU.Challenge.Infrastructure.Akka.Snapshot;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace RU.Challenge.Infrastructure.Akka.Actors
 {
     public class SubscriptionActor : PersistentActor
     {
         private Guid _id;
-        private Domain.Entities.Subscription _state;
-
-        private Guid _paymentMethodId;
-        private List<Guid> _distributionPlatformsId;
+        private SubscriptionState _state;
 
         public SubscriptionActor(Guid id)
-        {
-            _id = id;
-            _distributionPlatformsId = new List<Guid>();
-        }
+            => _id = id;
 
         public override string PersistenceId => _id.ToString();
 
@@ -33,16 +25,19 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
                 case CreateSubscriptionCommand createSubscriptionCommand:
                     var createSubscriptionEvent = CreateSubscriptionEvent.CreateFromCommand(createSubscriptionCommand, _id);
                     Persist(createSubscriptionEvent, CreateSubscriptionEventHandler);
+                    Context.System.EventStream.Publish(createSubscriptionEvent);
+                    SnapshotCheck();
+                    return true;
+
+                case AddDistributionPlatformToSubscriptionCommand addDistributionPlatformToSubscriptionCommand:
+                    var addDistributionPlatformToSubscriptionEvent = AddDistributionPlatformToSubscriptionEvent.CreateFromCommand(addDistributionPlatformToSubscriptionCommand);
+                    Persist(addDistributionPlatformToSubscriptionEvent, AddDistributionPlatformToSubscriptionEventHandler);
+                    Context.System.EventStream.Publish(addDistributionPlatformToSubscriptionEvent);
                     SnapshotCheck();
                     return true;
 
                 case RecoveryCompleted recoveryCompleted:
                     Log.Info($"Artist with ID {PersistenceId} recovery completed");
-                    return true;
-
-                case "state":
-                    PopulateDependencies();
-                    Sender.Tell(_state);
                     return true;
             }
 
@@ -58,10 +53,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
                     return true;
 
                 case SnapshotOffer snapshotOffer:
-                    var snapshot = snapshotOffer.Snapshot as SubscriptionAggregateSnapshot;
-                    _paymentMethodId = snapshot.PaymentMethodId;
-                    _distributionPlatformsId = snapshot.DistributionPlatformIds.ToList();
-                    _state = Domain.Entities.Subscription.Create(snapshot.Id, snapshot.ExpirationDate, snapshot.Amount);
+                    _state = snapshotOffer.Snapshot as SubscriptionState;
                     return true;
             }
 
@@ -71,27 +63,17 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
         private void SnapshotCheck()
         {
             if (LastSequenceNr != 0 && LastSequenceNr % 10 == 0)
-                SaveSnapshot(new SubscriptionAggregateSnapshot(
-                    _state.Id, _state.ExpirationDate, _state.Amount, _paymentMethodId, _distributionPlatformsId));
+                SaveSnapshot(_state);
         }
 
         private void CreateSubscriptionEventHandler(CreateSubscriptionEvent createSubscriptionEvent)
         {
-            _paymentMethodId = createSubscriptionEvent.PaymentMethodId;
-            _distributionPlatformsId = createSubscriptionEvent.DistributionPlatformsIds.ToList();
-            _state = Domain.Entities.Subscription.Create(createSubscriptionEvent.Id, createSubscriptionEvent.ExpirationDate, createSubscriptionEvent.Amount);
+            _state = new SubscriptionState(_id, createSubscriptionEvent.ExpirationDate, createSubscriptionEvent.Amount, createSubscriptionEvent.PaymentMethodId, createSubscriptionEvent.DistributionPlatformsIds.ToList());
         }
 
-        private void PopulateDependencies()
+        private void AddDistributionPlatformToSubscriptionEventHandler(AddDistributionPlatformToSubscriptionEvent addDistributionPlatformToSubscriptionEvent)
         {
-            var tPayment = Context.ActorOf(PaymentMethodActor.GetProps(_paymentMethodId)).Ask<Domain.Entities.PaymentMethod>("state");
-            var tPlatforms = _distributionPlatformsId.Select(e => Context.ActorOf(DistributionPlatformActor.GetProps(e)).Ask<Domain.Entities.DistributionPlatform>("state"));
-
-            Task.WhenAll(new Task[] { tPayment, }.Concat(tPlatforms)).GetAwaiter().GetResult();
-
-            _state.SetPaymentMethod(tPayment.Result);
-            foreach (var tPlat in tPlatforms)
-                _state.AddDistributionPlatform(tPlat.Result);
+            _state.DistributionPlatformIds.Add(addDistributionPlatformToSubscriptionEvent.DistributionPlatformId);
         }
 
         public static Props GetProps(Guid id)

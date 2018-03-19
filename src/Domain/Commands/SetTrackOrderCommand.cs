@@ -1,8 +1,10 @@
-﻿namespace RU.Challenge.Domain.Commands
+﻿using MediatR;
+
+namespace RU.Challenge.Domain.Commands
 {
-    public class SetTrackOrderCommand
+    public class SetTrackOrderCommand : IRequest
     {
-        public int Order { get; private set; }
+        public int Order { get; set; }
 
         public SetTrackOrderCommand(int order)
             => Order = order;

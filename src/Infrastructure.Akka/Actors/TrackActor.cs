@@ -1,10 +1,9 @@
 ﻿using Akka.Actor;
 using Akka.Persistence;
 using RU.Challenge.Domain.Commands;
-using RU.Challenge.Infrastructure.Akka.Events;
+using RU.Challenge.Domain.Events;
 using RU.Challenge.Infrastructure.Akka.Snapshot;
 using System;
-using System.Threading.Tasks;
 
 namespace RU.Challenge.Infrastructure.Akka.Actors
 {
@@ -39,11 +38,6 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
 
                 case RecoveryCompleted recoveryCompleted:
                     Log.Info($"Artist with ID {PersistenceId} recovery completed");
-                    return true;
-
-                case "state":
-                    PopulateDependencies();
-                    Sender.Tell(_state);
                     return true;
             }
 
@@ -86,16 +80,6 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
         private void SetTrackOrderEventHandler(SetTrackOrderEvent setTrackOrderEvent)
         {
             _state.SetOrder(setTrackOrderEvent.Order);
-        }
-
-        private void PopulateDependencies()
-        {
-            var tGenre = Context.ActorOf(GenreActor.GetProps(_genreId)).Ask<Domain.Entities.Genre>("state");
-            var tArtist = Context.ActorOf(ArtistActor.GetProps(_artistId)).Ask<Domain.Entities.Artist>("state");
-            Task.WhenAll(tGenre, tArtist).GetAwaiter().GetResult();
-
-            _state.SetGenre(tGenre.Result);
-            _state.SetArtist(tArtist.Result);
         }
 
         public static Props GetProps(Guid id)

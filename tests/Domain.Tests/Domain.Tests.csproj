@@ -7,6 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Entities\ReleaseManagerTests.cs" />
+    <Compile Remove="Entities\ReleaseTests.cs" />
+    <Compile Remove="Entities\TrackTests.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoFixture" Version="4.1.0" />
     <PackageReference Include="AutoFixture.AutoMoq" Version="4.1.0" />
     <PackageReference Include="AutoFixture.Xunit2" Version="4.1.0" />

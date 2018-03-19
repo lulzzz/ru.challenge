@@ -1,12 +1,12 @@
-﻿namespace RU.Challenge.Domain.Commands
+﻿using MediatR;
+
+namespace RU.Challenge.Domain.Commands
 {
-    public class CreateDistributionPlatformCommand
+    public class CreateDistributionPlatformCommand : IRequest
     {
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         public CreateDistributionPlatformCommand(string name)
-        {
-            Name = name;
-        }
+            => Name = name;
     }
 }
