@@ -15,8 +15,9 @@ namespace RU.Challenge.Infrastructure.Dapper.Repositories
 
         public async Task AddAsync(CreateGenreEvent @event)
         {
-            // TODO: This is not SQLi safe
-            await _dbConnection.ExecuteAsync($"INSERT INTO genre (id, name) VALUES ('{@event.Id}', '{@event.Name}')");
+            await _dbConnection.ExecuteAsync(
+                sql: $"INSERT INTO genre (id, name) VALUES (@Id, @Name)",
+                param: new { @event.Id, @event.Name });
         }
     }
 }

@@ -21,17 +21,18 @@ namespace RU.Challenge.Infrastructure.Dapper.Repositories
             
             // TODO: This is not SQLi safe
             await _dbConnection.ExecuteAsync(
-                $"INSERT INTO subscription (id, expiration_date, amount, payment_method_id, distribution_platforms_id) " +
-                $"VALUES ('{@event.Id}', '{@event.ExpirationDate}', '{@event.Amount}', '{@event.PaymentMethodId}', '{distributionPlatformsIds}')");
+                sql: $"INSERT INTO subscription (id, expiration_date, amount, payment_method_id, distribution_platforms_id) " +
+                     $"VALUES (@Id, @ExpirationDate, @Amount, @PaymentMethodId, '{distributionPlatformsIds}')",
+                param: new { @event.Id, @event.ExpirationDate, @event.Amount, @event.PaymentMethodId } );
         }
 
         public async Task AddDistributionPlatformAsync(AddDistributionPlatformToSubscriptionEvent @event)
         {
-            // TODO: This is not SQLi safe
             await _dbConnection.ExecuteAsync(
-                $"UPDATE subscription " +
-                $"SET distribution_platforms_id = ARRAY_APPEND(distribution_platforms_id, '{@event.DistributionPlatformId}') " +
-                $"WHERE id = '{@event.SubscriptionId}'");
+                sql: $"UPDATE subscription " +
+                     $"SET distribution_platforms_id = ARRAY_APPEND(distribution_platforms_id, @DistributionPlatformId) " +
+                     $"WHERE id = @SubscriptionId",
+                param: new { @event.DistributionPlatformId, @event.SubscriptionId });
         }
     }
 }

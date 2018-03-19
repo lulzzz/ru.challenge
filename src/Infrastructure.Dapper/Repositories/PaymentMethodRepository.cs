@@ -15,8 +15,9 @@ namespace RU.Challenge.Infrastructure.Dapper.Repositories
 
         public async Task AddAsync(CreatePaymentMethodEvent @event)
         {
-            // TODO: This is not SQLi safe
-            await _dbConnection.ExecuteAsync($"INSERT INTO payment_method (id, name) VALUES ('{@event.Id}', '{@event.Name}')");
+            await _dbConnection.ExecuteAsync(
+                sql: $"INSERT INTO payment_method (id, name) VALUES (@Id, @Name)",
+                param: new { @event.Id, @event.Name });
         }
     }
 }

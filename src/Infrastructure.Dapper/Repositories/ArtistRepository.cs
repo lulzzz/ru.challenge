@@ -15,8 +15,9 @@ namespace RU.Challenge.Infrastructure.Dapper.Repositories
 
         public async Task AddAsync(CreateArtistEvent @event)
         {
-            // TODO: This is not SQLi safe
-            await _dbConnection.ExecuteAsync($"INSERT INTO artist (id, name, age) VALUES ('{@event.Id}', '{@event.Name}', '{@event.Age}')");
+            await _dbConnection.ExecuteAsync(
+                sql: $"INSERT INTO artist (id, name, age) VALUES (@Id, @Name, @Age)",
+                param: new { @event.Id, @event.Name, @event.Age });
         }
     }
 }
