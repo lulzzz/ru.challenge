@@ -1,4 +1,7 @@
 ﻿using Dapper;
+using Microsoft.Extensions.Logging;
+using Polly;
+using System;
 using System.Data;
 using System.Threading.Tasks;
 
@@ -6,12 +9,24 @@ namespace RU.Challenge.Infrastructure.Dapper
 {
     public class DbInitializer
     {
+        private readonly ILogger<DbInitializer> _logger;
         private readonly IDbConnection _dbConnection;
 
-        public DbInitializer(IDbConnection dbConnection)
-            => _dbConnection = dbConnection;
+        public DbInitializer(IDbConnection dbConnection, ILogger<DbInitializer> logger)
+        {
+            _logger = logger;
+            _dbConnection = dbConnection;
+        }
 
         public async Task Init()
+        {
+            await Policy
+              .Handle<Exception>()
+              .WaitAndRetryAsync(3, (count) => TimeSpan.FromSeconds(10))
+              .ExecuteAsync(InnerInit);
+        }
+
+        private async Task InnerInit()
         {
             var genreTable = await _dbConnection.ExecuteScalarAsync<bool>(GetExistsScript(tableName: "genre"));
             if (!genreTable)
@@ -32,6 +47,8 @@ namespace RU.Challenge.Infrastructure.Dapper
             var subscriptionTable = await _dbConnection.ExecuteScalarAsync<bool>(GetExistsScript(tableName: "subscription"));
             if (!subscriptionTable)
                 await _dbConnection.ExecuteAsync("CREATE TABLE subscription (id UUID PRIMARY KEY, expiration_date TIMESTAMP, amount DECIMAL, payment_method_id UUID, distribution_platforms_id UUID ARRAY)");
+
+            _logger.LogInformation("All the tables were created");
         }
 
         private string GetExistsScript(string tableName, string tableSchema = "public")

@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: ruread
     volumes:
-      - pg-data:/var/lib/postgresql961/data
+      - pg-data:/var/lib/postgresqlread/data
     networks:
       - default
       
@@ -25,7 +25,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: ruwrite
     volumes:
-      - pg-data2:/var/lib/postgresql961/data
+      - pg-data2:/var/lib/postgresqlwrite/data
     networks:
       - default
       
@@ -36,7 +36,7 @@ services:
       - 9001:80
     links:
       - postgresread
-      - postgreswrite
+      - postgreswrite    
     volumes:
       - logs:/app/logs
     environment:

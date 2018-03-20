@@ -45,6 +45,7 @@ namespace RU.Challenge.Presentation.API
 
         public void ConfigureServices(IServiceCollection services)
             => services
+                .AddLogging()
                 .AddOptions()
                 .AddSwaggerGen(c =>
                 {
@@ -97,7 +98,7 @@ namespace RU.Challenge.Presentation.API
         private void RegisterReadDatabase(ContainerBuilder builder)
         {
             builder
-                .Register(e => new NpgsqlConnection(Configuration.GetConnectionString("RURead")))
+                .Register(e => new NpgsqlConnection(Configuration.GetConnectionString("ruread")))
                 .As<IDbConnection>()
                 .InstancePerLifetimeScope();
 
@@ -139,6 +140,7 @@ namespace RU.Challenge.Presentation.API
              {
                  c.SwaggerEndpoint("/swagger/v1/swagger.json", "RU Challenge API v1");
                  c.RoutePrefix = "help";
+                 c.DefaultModelsExpandDepth(-1);
              });
         }
     }

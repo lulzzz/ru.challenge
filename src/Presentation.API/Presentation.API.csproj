@@ -25,6 +25,7 @@
     <PackageReference Include="Autofac.Configuration" Version="4.0.1" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.1" />
     <PackageReference Include="MediatR" Version="4.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.0.1" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.5.0-rc3" />
     <PackageReference Include="npgsql" Version="3.2.7" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.3.0" />
