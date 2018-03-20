@@ -28,6 +28,14 @@ namespace RU.Challenge.Infrastructure.Dapper
 
         private async Task InnerInit()
         {
+            var userTable = await _dbConnection.ExecuteScalarAsync<bool>(GetExistsScript(tableName: "user_auth"));
+            if (!userTable)
+                await _dbConnection.ExecuteAsync("CREATE TABLE user_auth (id UUID PRIMARY KEY, user_name VARCHAR(50), normalized_user_name VARCHAR(50), email VARCHAR(200), password_hash VARCHAR(300))");
+
+            var roleTable = await _dbConnection.ExecuteScalarAsync<bool>(GetExistsScript(tableName: "role_auth"));
+            if (!roleTable)
+                await _dbConnection.ExecuteAsync("CREATE TABLE role_auth (id UUID PRIMARY KEY, role_name VARCHAR(50), normalized_role_name VARCHAR(50))");
+
             var genreTable = await _dbConnection.ExecuteScalarAsync<bool>(GetExistsScript(tableName: "genre"));
             if (!genreTable)
                 await _dbConnection.ExecuteAsync("CREATE TABLE genre (id UUID PRIMARY KEY, name VARCHAR(500))");

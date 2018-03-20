@@ -49,7 +49,6 @@ namespace RU.Challenge.Presentation.API.Autofac
                 .As(t => t.GetInterfaces().Where(i => i.IsClosedTypeOf(typeof(IRequestHandler<,>))));
         }
 
-
         private void RegisterNotificationHandlersFromAssembly(AF.ContainerBuilder builder, Assembly assembly)
         {
             builder

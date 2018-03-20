@@ -4,22 +4,29 @@ using Akka.DI.AutoFac;
 using Akka.DI.Core;
 using Autofac;
 using Infrastructure.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Rewrite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyModel;
+using Microsoft.IdentityModel.Tokens;
 using Npgsql;
+using RU.Challenge.Domain.Entities.Auth;
 using RU.Challenge.Infrastructure.Akka.Projection;
 using RU.Challenge.Infrastructure.Dapper;
 using RU.Challenge.Infrastructure.Dapper.Repositories;
+using RU.Challenge.Infrastructure.Identity;
 using RU.Challenge.Presentation.API.Autofac;
 using Swashbuckle.AspNetCore.Swagger;
+using System;
 using System.Data;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace RU.Challenge.Presentation.API
 {
@@ -44,7 +51,8 @@ namespace RU.Challenge.Presentation.API
         }
 
         public void ConfigureServices(IServiceCollection services)
-            => services
+        {
+            services
                 .AddLogging()
                 .AddOptions()
                 .AddSwaggerGen(c =>
@@ -52,8 +60,25 @@ namespace RU.Challenge.Presentation.API
                     c.CustomSchemaIds(x => x.FullName);
                     c.SwaggerDoc("v1", new Info { Title = "RU Challenge", Version = "v1" });
                     c.DescribeAllEnumsAsStrings();
+                });
+
+            services.AddIdentity<User, Role>()
+                .AddRoleStore<RoleStore>()
+                .AddUserStore<UserPasswordStore>()
+                .AddDefaultTokenProviders();
+
+            var tokenValidation = ConfigureJWTToken(services);
+
+            services
+                .AddAuthentication(opt =>
+                {
+                    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddMvc(options => options.Filters.Add(new ProducesAttribute("application/json")));
+                .AddJwtBearer(opt => opt.TokenValidationParameters = tokenValidation);
+
+            services.AddMvc(options => options.Filters.Add(new ProducesAttribute("application/json")));
+        }
 
         public void ConfigureContainer(ContainerBuilder builder)
         {
@@ -93,6 +118,8 @@ namespace RU.Challenge.Presentation.API
             builder
                 .Register(e => new AutoFacDependencyResolver(e.Resolve<ILifetimeScope>(), e.Resolve<ActorSystem>()))
                 .As<IDependencyResolver>();
+
+            //builder.RegisterType<JwtFactory>().AsSelf();
         }
 
         private void RegisterReadDatabase(ContainerBuilder builder)
@@ -142,6 +169,36 @@ namespace RU.Challenge.Presentation.API
                  c.RoutePrefix = "help";
                  c.DefaultModelsExpandDepth(-1);
              });
+        }
+
+        private TokenValidationParameters ConfigureJWTToken(IServiceCollection services)
+        {
+            // Set up JWT
+            var issuer = Configuration.GetValue<string>("Jwt:Issuer");
+            var audience = Configuration.GetValue<string>("Jwt:Audience");
+            var secretKey = Configuration.GetValue<string>("Jwt:SecretKey");
+            var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
+
+            // This line can be replaced with Autofac or other DI container
+            services.AddSingleton(e =>
+                new JwtFactory(
+                    issuer,
+                    audience,
+                    new SigningCredentials(
+                        key: signingKey,
+                        algorithm: SecurityAlgorithms.HmacSha256)));
+
+            return new TokenValidationParameters
+            {
+                ValidIssuer = issuer,
+                ValidAudience = audience,
+                IssuerSigningKey = signingKey,
+                ClockSkew = TimeSpan.Zero,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateIssuerSigningKey = true,
+                ValidateLifetime = true,
+            };
         }
     }
 }
