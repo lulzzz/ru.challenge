@@ -1,42 +1,32 @@
 version: '3'
 services:   
      
-  postgresread:
-    image: postgres:9.6
-    restart: always
-    ports:
-      - 5433:5432
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ruread
-    volumes:
-      - pg-data:/var/lib/postgresqlread/data
-    networks:
-      - default
-      
-  postgreswrite:
+  postgres:
     image: postgres:9.6
     restart: always
     ports:
       - 5434:5432
+    build:
+      context: postgresql
+      dockerfile: Dockerfile
+    volumes:
+      - pg-data:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ruwrite
-    volumes:
-      - pg-data2:/var/lib/postgresqlwrite/data
+      POSTGRES_MULTIPLE_DATABASES: ruread,ruauth,ruwrite
     networks:
       - default
       
   app:
     image: ruchallenge
-    build: .
+    build:
+      context: src/Presentation.API/
+      dockerfile: Dockerfile
     ports:
       - 9001:80
     links:
-      - postgresread
-      - postgreswrite    
+      - postgres  
     volumes:
       - logs:/app/logs
     environment:
@@ -46,7 +36,6 @@ services:
         
 volumes:
   pg-data:
-  pg-data2:
   logs:
     external: true
 networks:

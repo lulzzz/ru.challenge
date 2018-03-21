@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using NLog.Web;
 using RU.Challenge.Infrastructure.Akka.Projection;
 using RU.Challenge.Infrastructure.Dapper;
+using RU.Challenge.Infrastructure.Identity;
 using System;
 
 namespace RU.Challenge.Presentation.API
@@ -36,8 +37,15 @@ namespace RU.Challenge.Presentation.API
 
                 // Init Database
                 {
-                    var dbInitializer = host.Services.GetRequiredService<DbInitializer>();
-                    dbInitializer.Init().GetAwaiter().GetResult();
+                    using (var scope = host.Services.CreateScope())
+                    {
+                        var environment = scope.ServiceProvider.GetRequiredService<IHostingEnvironment>();
+                        if (!environment.IsProduction())
+                        {
+                            host.Services.GetRequiredService<ReadDbInitializer>().Init().GetAwaiter().GetResult();
+                            host.Services.GetRequiredService<AuthDbInitializer>().Init().GetAwaiter().GetResult();
+                        }
+                    }
                 }
 
                 host.RunAsync().Wait();

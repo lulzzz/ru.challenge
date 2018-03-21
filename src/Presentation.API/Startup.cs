@@ -3,6 +3,7 @@ using Akka.Configuration;
 using Akka.DI.AutoFac;
 using Akka.DI.Core;
 using Autofac;
+using Autofac.Core;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -21,6 +22,7 @@ using RU.Challenge.Infrastructure.Dapper;
 using RU.Challenge.Infrastructure.Dapper.Repositories;
 using RU.Challenge.Infrastructure.Identity;
 using RU.Challenge.Presentation.API.Autofac;
+using RU.Challenge.Presentation.API.Swagger;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.Data;
@@ -60,11 +62,11 @@ namespace RU.Challenge.Presentation.API
                     c.CustomSchemaIds(x => x.FullName);
                     c.SwaggerDoc("v1", new Info { Title = "RU Challenge", Version = "v1" });
                     c.DescribeAllEnumsAsStrings();
+                    c.OperationFilter<AddAuthorizationHeaderParameter>();
                 });
 
-            services.AddIdentity<User, Role>()
-                .AddRoleStore<RoleStore>()
-                .AddUserStore<UserPasswordStore>()
+            services
+                .AddIdentity<User, Role>()
                 .AddDefaultTokenProviders();
 
             var tokenValidation = ConfigureJWTToken(services);
@@ -75,7 +77,12 @@ namespace RU.Challenge.Presentation.API
                     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
-                .AddJwtBearer(opt => opt.TokenValidationParameters = tokenValidation);
+                .AddJwtBearer(opt =>
+                {
+                    opt.ClaimsIssuer = tokenValidation.ValidIssuer;
+                    opt.TokenValidationParameters = tokenValidation;
+                    opt.SaveToken = true;
+                });
 
             services.AddMvc(options => options.Filters.Add(new ProducesAttribute("application/json")));
         }
@@ -85,6 +92,7 @@ namespace RU.Challenge.Presentation.API
             RegisterCQRS(builder);
             RegisterAkka(builder);
             RegisterReadDatabase(builder);
+            RegisterAuthDatabase(builder);
         }
 
         private void RegisterCQRS(ContainerBuilder builder)
@@ -118,8 +126,29 @@ namespace RU.Challenge.Presentation.API
             builder
                 .Register(e => new AutoFacDependencyResolver(e.Resolve<ILifetimeScope>(), e.Resolve<ActorSystem>()))
                 .As<IDependencyResolver>();
+        }
 
-            //builder.RegisterType<JwtFactory>().AsSelf();
+        private void RegisterAuthDatabase(ContainerBuilder builder)
+        {
+            builder
+                .Register(e => new NpgsqlConnection(Configuration.GetConnectionString("ruauth")))
+                .Named<IDbConnection>("ruauth")
+                .InstancePerLifetimeScope();
+
+            builder
+                .RegisterType<AuthDbInitializer>()
+                .WithParameter(ResolvedParameter.ForNamed<IDbConnection>("ruauth"))
+                .AsSelf();
+
+            builder
+                .RegisterType<UserPasswordStore>()
+                .WithParameter(ResolvedParameter.ForNamed<IDbConnection>("ruauth"))
+                .As<IUserStore<User>>();
+
+            builder
+                .RegisterType<RoleStore>()
+                .WithParameter(ResolvedParameter.ForNamed<IDbConnection>("ruauth"))
+                .As<IRoleStore<Role>>();
         }
 
         private void RegisterReadDatabase(ContainerBuilder builder)
@@ -130,7 +159,7 @@ namespace RU.Challenge.Presentation.API
                 .InstancePerLifetimeScope();
 
             builder
-                .RegisterType<DbInitializer>()
+                .RegisterType<ReadDbInitializer>()
                 .AsSelf();
 
             builder
@@ -160,6 +189,7 @@ namespace RU.Challenge.Presentation.API
                 app.UseDeveloperExceptionPage();
 
             app
+             .UseAuthentication()
              .UseRewriter(new RewriteOptions().AddRedirect("^$", "/help"))
              .UseMvcWithDefaultRoute()
              .UseSwagger()
@@ -194,10 +224,10 @@ namespace RU.Challenge.Presentation.API
                 ValidAudience = audience,
                 IssuerSigningKey = signingKey,
                 ClockSkew = TimeSpan.Zero,
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateIssuerSigningKey = true,
-                ValidateLifetime = true,
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateIssuerSigningKey = false,
+                ValidateLifetime = false,
             };
         }
     }

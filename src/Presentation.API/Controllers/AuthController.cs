@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using RU.Challenge.Domain.Entities.Auth;
 using RU.Challenge.Infrastructure.Identity;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RU.Challenge.Presentation.API.Controllers
@@ -52,5 +54,14 @@ namespace RU.Challenge.Presentation.API.Controllers
             else
                 return BadRequest(result.Errors);
         }
+
+        [HttpPost]
+        [Route("refreshtoken")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var asd = User.Claims;
+            return Ok();
+        }
+
     }
 }
