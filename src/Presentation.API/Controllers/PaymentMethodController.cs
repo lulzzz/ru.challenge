@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using RU.Challenge.Domain.Queries;
@@ -8,6 +9,7 @@ using System.Threading.Tasks;
 namespace RU.Challenge.Presentation.API.Controllers
 {
     [Route("api")]
+    [Authorize(Roles = "ReleaseManager")]
     public class PaymentMethodController : Controller
     {
         private readonly IMediator _mediator;

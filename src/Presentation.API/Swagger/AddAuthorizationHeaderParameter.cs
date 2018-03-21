@@ -16,11 +16,9 @@ namespace RU.Challenge.Presentation.API.Swagger
                 operation.Parameters.Add(new NonBodyParameter()
                 {
                     Name = "Authorization",
-                    Description = "JWT Token",
                     Required = true,
                     Type = "string",
                     In = "header",
-                    
                 });
             }
         }

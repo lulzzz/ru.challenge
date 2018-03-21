@@ -2,25 +2,20 @@
 
 namespace RU.Challenge.Infrastructure.Identity.DTO
 {
-    public class User
+    public class LoginUser
     {
         [Required]
         [EmailAddress]
         public string Email { get; set; }
 
         [Required]
-        public string Username { get; set; }
-
-        [Required]
         public string Password { get; set; }
 
-        public User(
+        public LoginUser(
             string email,
-            string username,
             string password)
         {
             Email = email;
-            Username = username;
             Password = password;
         }
     }
