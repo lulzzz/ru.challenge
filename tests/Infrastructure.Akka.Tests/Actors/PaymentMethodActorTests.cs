@@ -1,9 +1,9 @@
 ﻿using Akka.TestKit.Xunit2;
 using FluentAssertions;
 using RU.Challenge.Domain.Commands;
+using RU.Challenge.Domain.Events;
 using RU.Challenge.Fixtures.Attributes;
 using RU.Challenge.Fixtures.Helpers;
-using RU.Challenge.Infrastructure.Akka.Events;
 using System;
 using Xunit;
 

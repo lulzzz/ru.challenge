@@ -57,7 +57,7 @@ namespace RU.Challenge.Presentation.API.Controllers
 
         [HttpPost]
         [Route("refreshtoken")]
-        public async Task<IActionResult> RefreshToken()
+        public IActionResult RefreshToken()
         {
             var asd = User.Claims;
             return Ok();

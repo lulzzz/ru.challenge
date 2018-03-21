@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.Dapper", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure", "src\Infrastructure\Infrastructure.csproj", "{1317E9E9-9222-4E35-AEE5-A5444727F574}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.Identity", "src\Infrastructure.Identity\Infrastructure.Identity.csproj", "{7E515721-7713-41A9-B830-3FC84C791A68}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.Identity", "src\Infrastructure.Identity\Infrastructure.Identity.csproj", "{7E515721-7713-41A9-B830-3FC84C791A68}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

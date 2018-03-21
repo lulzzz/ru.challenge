@@ -21,8 +21,8 @@ services:
   app:
     image: ruchallenge
     build:
-      context: src/Presentation.API/
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: src/Presentation.API/Dockerfile
     ports:
       - 9001:80
     links:

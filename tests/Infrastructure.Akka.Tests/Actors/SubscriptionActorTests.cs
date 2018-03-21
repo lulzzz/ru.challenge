@@ -1,9 +1,9 @@
 ﻿using Akka.TestKit.Xunit2;
 using FluentAssertions;
 using RU.Challenge.Domain.Commands;
+using RU.Challenge.Domain.Events;
 using RU.Challenge.Fixtures.Attributes;
 using RU.Challenge.Fixtures.Helpers;
-using RU.Challenge.Infrastructure.Akka.Events;
 using RU.Challenge.Infrastructure.Akka.Snapshot;
 using System;
 using System.Collections.Generic;
@@ -91,7 +91,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
         public void SubscriptionActorShouldRecoverSuccessfullySnapshot(
             CreatePaymentMethodCommand createPaymentMethodCommand,
             IEnumerable<CreateDistributionPlatformCommand> createDistributionPlatformCommands,
-            SubscriptionAggregateSnapshot subscriptionSnapshot)
+            SubscriptionState subscriptionState)
         {
             // Setup
             var probe = CreateTestProbe();
@@ -99,24 +99,24 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             CreateRelatedPaymentAndDistributionPlatforms(
                 createPaymentMethodCommand,
                 createDistributionPlatformCommands,
-                subscriptionSnapshot);
+                subscriptionState);
 
-            PersistenceHelper.InitializeSnapshot(probe, subscriptionSnapshot.Id.ToString(), subscriptionSnapshot);
+            PersistenceHelper.InitializeSnapshot(probe, subscriptionState.Id.ToString(), subscriptionState);
 
             // Exercise
-            var subscriptionActor = Sys.ActorOf(SubscriptionActor.GetProps(subscriptionSnapshot.Id));
+            var subscriptionActor = Sys.ActorOf(SubscriptionActor.GetProps(subscriptionState.Id));
 
             // Verify outcome
             subscriptionActor.Tell("state", TestActor);
             var actual = ExpectMsg<Domain.Entities.Subscription>();
-            actual.Id.Should().Be(subscriptionSnapshot.Id);
-            actual.Amount.Should().Be(subscriptionSnapshot.Amount);
-            actual.ExpirationDate.Should().Be(subscriptionSnapshot.ExpirationDate);
-            actual.PaymentMethod.Id.Should().Be(subscriptionSnapshot.PaymentMethodId);
+            actual.Id.Should().Be(subscriptionState.Id);
+            actual.Amount.Should().Be(subscriptionState.Amount);
+            actual.ExpirationDate.Should().Be(subscriptionState.ExpirationDate);
+            actual.PaymentMethod.Id.Should().Be(subscriptionState.PaymentMethodId);
             actual.PaymentMethod.Name.Should().Be(createPaymentMethodCommand.Name);
             foreach (var actDp in actual.DistributionPlatforms)
             {
-                subscriptionSnapshot.DistributionPlatformIds.Should().Contain(actDp.Id);
+                subscriptionState.DistributionPlatformIds.Should().Contain(actDp.Id);
                 createDistributionPlatformCommands.Should().ContainSingle(e => e.Name == actDp.Name);
             }
         }
@@ -145,20 +145,20 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
         private void CreateRelatedPaymentAndDistributionPlatforms(
             CreatePaymentMethodCommand createPaymentMethodCommand,
             IEnumerable<CreateDistributionPlatformCommand> createDistributionPlatformCommands,
-            SubscriptionAggregateSnapshot subscriptionAggregateSnapshot)
+            SubscriptionState subscriptionState)
         {
             // Create Payment methods (pre condition)
-            var paymentId = subscriptionAggregateSnapshot.PaymentMethodId;
+            var paymentId = subscriptionState.PaymentMethodId;
 
             Sys.ActorOf(PaymentMethodActor.GetProps(paymentId))
                .Tell(createPaymentMethodCommand, TestActor);
 
             //Create Distribution platforms(pre condition)
-            for (int i = 0; i < subscriptionAggregateSnapshot.DistributionPlatformIds.Count(); i++)
+            for (int i = 0; i < subscriptionState.DistributionPlatformIds.Count(); i++)
             {
                 var createDistributionPlatformCommand = createDistributionPlatformCommands.ElementAt(i);
 
-                Sys.ActorOf(DistributionPlatformActor.GetProps(subscriptionAggregateSnapshot.DistributionPlatformIds.ElementAt(i)))
+                Sys.ActorOf(DistributionPlatformActor.GetProps(subscriptionState.DistributionPlatformIds.ElementAt(i)))
                    .Tell(createDistributionPlatformCommand, TestActor);
             }
         }
