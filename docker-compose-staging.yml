@@ -7,8 +7,8 @@ services:
     ports:
       - 5434:5432
     build:
-      context: postgresql
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: postgresql/Dockerfile
     volumes:
       - pg-data:/var/lib/postgresql/data
     environment:
