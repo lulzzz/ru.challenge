@@ -94,7 +94,7 @@ namespace RU.Challenge.Presentation.API.Controllers
 
         [HttpPost]
         [Route("refreshtoken")]
-        [Authorize(Roles = "api_acc2ess, api_release_ma2nager")]
+        [Authorize(Roles = "api_access, api_release_manager")]
         public IActionResult RefreshToken()
         {
             var roles = User.Claims.GetRoles();
