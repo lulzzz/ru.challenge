@@ -26,7 +26,7 @@ namespace RU.Challenge.Infrastructure.Identity
         public string GenerateToken(
             string userId,
             string userName,
-            IEnumerable<string> roles,
+            IEnumerable<Claim> roles,
             TimeSpan tokenDuration)
         {
             var claims = new[] {
@@ -34,7 +34,7 @@ namespace RU.Challenge.Infrastructure.Identity
                 new Claim(JwtRegisteredClaimNames.Jti,  Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
                 new Claim("uid", userId)
-             }.Concat(roles.Select(e => new Claim("roles", e)));
+             }.Concat(roles);
 
             var jwtToken =
                 new JwtSecurityToken(

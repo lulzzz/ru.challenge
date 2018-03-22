@@ -9,8 +9,8 @@ namespace RU.Challenge.Infrastructure.Identity
 {
     public class AuthDbInitializer
     {
-        private readonly ILogger<AuthDbInitializer> _logger;
         private readonly IDbConnection _dbConnection;
+        private readonly ILogger<AuthDbInitializer> _logger;
 
         public AuthDbInitializer(IDbConnection dbConnection, ILogger<AuthDbInitializer> logger)
         {
@@ -32,9 +32,9 @@ namespace RU.Challenge.Infrastructure.Identity
             if (!userTable)
                 await _dbConnection.ExecuteAsync("CREATE TABLE user_auth (id UUID PRIMARY KEY, user_name VARCHAR(50), normalized_user_name VARCHAR(50), email VARCHAR(200), password_hash VARCHAR(300))");
 
-            var roleTable = await _dbConnection.ExecuteScalarAsync<bool>(GetExistsScript(tableName: "role_auth"));
+            var roleTable = await _dbConnection.ExecuteScalarAsync<bool>(GetExistsScript(tableName: "claims_auth"));
             if (!roleTable)
-                await _dbConnection.ExecuteAsync("CREATE TABLE role_auth (id UUID PRIMARY KEY, role_name VARCHAR(50), normalized_role_name VARCHAR(50))");
+                await _dbConnection.ExecuteAsync("CREATE TABLE claims_auth (user_id UUID, type VARCHAR(50), value VARCHAR(50))");
 
             _logger.LogInformation("Auth database tables created");
         }

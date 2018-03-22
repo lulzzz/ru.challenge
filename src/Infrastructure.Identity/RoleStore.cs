@@ -44,13 +44,21 @@ namespace RU.Challenge.Infrastructure.Identity
                 throw new ArgumentException($"Id was not a valid Guid: {roleId}", nameof(roleId));
 
             return await _dbConnection.QueryFirstOrDefaultAsync<Role>(
-                sql: "SELECT * FROM role_auth WHERE id = @Id", param: new { Id = roleId });
+                sql: @"SELECT
+                        id,
+                        role_name as ""RoleName"",
+                        normalized_role_name as ""NormalizedRoleName"" FROM role_auth WHERE id = @Id",
+                param: new { Id = roleId });
         }
 
         public async Task<Role> FindByNameAsync(string normalizedRoleName, CancellationToken cancellationToken)
         {
             return await _dbConnection.QueryFirstOrDefaultAsync<Role>(
-                sql: "SELECT * FROM role_auth WHERE normalized_role_name LIKE @NormalizedRoleName", param: new { NormalizedRoleName = $"%{normalizedRoleName}%" });
+                sql: @"SELECT
+                        id,
+                        role_name as ""RoleName"",
+                        normalized_role_name as ""NormalizedRoleName"" FROM role_auth WHERE normalized_role_name = @NormalizedRoleName",
+                param: new { NormalizedRoleName = normalizedRoleName });
         }
 
         public async Task<IdentityResult> UpdateAsync(Role role, CancellationToken cancellationToken)

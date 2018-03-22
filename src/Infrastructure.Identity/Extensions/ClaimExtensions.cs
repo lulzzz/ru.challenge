@@ -18,14 +18,14 @@ namespace RU.Challenge.Infrastructure.Identity.Extensions
             return Guid.Parse(claim.Value);
         }
 
-        public static IEnumerable<string> GetRoles(this IEnumerable<Claim> @this)
+        public static IEnumerable<Claim> GetRoles(this IEnumerable<Claim> @this)
         {
             var claims = @this.Where(e => e.Type.Contains("identity/claims/role"));
 
             if (claims == null || !claims.Any())
                 throw new DomainException("The roles are not present on the JWT");
 
-            return claims.Select(e => e.Value);
+            return claims;
         }
 
         public static string GetUserName(this IEnumerable<Claim> @this)

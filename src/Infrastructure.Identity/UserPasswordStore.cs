@@ -2,13 +2,16 @@
 using Microsoft.AspNetCore.Identity;
 using RU.Challenge.Domain.Entities.Auth;
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace RU.Challenge.Infrastructure.Identity
 {
-    public class UserPasswordStore : IUserPasswordStore<User>
+    public class UserPasswordStore : IUserPasswordStore<User>, IUserClaimStore<User>
     {
         private readonly IDbConnection _dbConnection;
 
@@ -44,13 +47,27 @@ namespace RU.Challenge.Infrastructure.Identity
                 throw new ArgumentException($"Id was not a valid Guid: {userId}", nameof(userId));
 
             return await _dbConnection.QueryFirstOrDefaultAsync<User>(
-                sql: "SELECT * FROM user_auth WHERE id = @Id", param: new { Id = userId });
+                sql: @"SELECT
+                        id,
+                        user_name as ""UserName"",
+                        normalized_user_name as ""NormalizedUserName"",
+                        email,
+                        password_hash as ""PasswordHash""
+                       FROM user_auth WHERE id = @Id",
+                param: new { Id = userId });
         }
 
         public async Task<User> FindByNameAsync(string normalizedUserName, CancellationToken cancellationToken)
         {
             return await _dbConnection.QueryFirstOrDefaultAsync<User>(
-                sql: "SELECT * FROM user_auth WHERE normalized_user_name LIKE @NormalizedUserName", param: new { NormalizedUserName = $"%{normalizedUserName}%" });
+                sql: @"SELECT
+                        id,
+                        user_name as ""UserName"",
+                        normalized_user_name as ""NormalizedUserName"",
+                        email,
+                        password_hash as ""PasswordHash""
+                       FROM user_auth WHERE normalized_user_name = @NormalizedUserName",
+                param: new { NormalizedUserName = normalizedUserName });
         }
 
         public async Task<IdentityResult> UpdateAsync(User user, CancellationToken cancellationToken)
@@ -125,6 +142,43 @@ namespace RU.Challenge.Infrastructure.Identity
 
             user.UserName = userName;
             return Task.CompletedTask;
+        }
+
+        public async Task<IList<Claim>> GetClaimsAsync(User user, CancellationToken cancellationToken)
+        {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            return (await _dbConnection.QueryAsync<Claim>(
+                sql: @"SELECT type, value FROM claims_auth WHERE user_id = @Id", param: new { user.Id })).ToList();
+        }
+
+        public async Task AddClaimsAsync(User user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
+        {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            foreach (var claim in claims)
+            {
+                await _dbConnection.ExecuteAsync(
+                    sql: "INSERT INTO claims_auth (user_id, type, value) VALUES (@Id, @Type, @Value)",
+                    param: new { user.Id, claim.Type, claim.Value });
+            }
+        }
+
+        public Task ReplaceClaimAsync(User user, Claim claim, Claim newClaim, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveClaimsAsync(User user, IEnumerable<Claim> claims, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IList<User>> GetUsersForClaimAsync(Claim claim, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         public void Dispose()

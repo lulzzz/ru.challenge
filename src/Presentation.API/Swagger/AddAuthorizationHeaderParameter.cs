@@ -8,7 +8,7 @@ namespace RU.Challenge.Presentation.API.Swagger
     {
         public void Apply(Operation operation, OperationFilterContext context)
         {
-            if (operation.OperationId != "ApiAuthRegisterPost")
+            if (operation.OperationId != "ApiAuthRegisterPost" && operation.OperationId != "ApiAuthLoginPost")
             {
                 if (operation.Parameters == null)
                     operation.Parameters = new List<IParameter>();

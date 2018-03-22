@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace RU.Challenge.Presentation.API.Controllers
 {
     [Route("api")]
-    [Authorize(Roles = "ReleaseManager")]
+    [Authorize(Roles = "api_access, api_release_manager")]
     public class DistributionPlatformController : Controller
     {
         private readonly IMediator _mediator;

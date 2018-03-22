@@ -66,7 +66,11 @@ namespace RU.Challenge.Presentation.API
                 });
 
             services
-                .AddIdentity<User, Role>()
+                .AddIdentity<User, Role>(c => {
+                    c.Password.RequireDigit = false;
+                    c.Password.RequireNonAlphanumeric = false;
+                    c.Password.RequireUppercase = false;
+                })
                 .AddDefaultTokenProviders();
 
             var tokenValidation = ConfigureJWTToken(services);
