@@ -15,7 +15,7 @@ namespace RU.Challenge.Domain.Events
             Name = name;
         }
 
-        public static CreateDistributionPlatformEvent CreateFromCommand(CreateDistributionPlatformCommand command, Guid id)
-            => new CreateDistributionPlatformEvent(id, command.Name);
+        public static CreateDistributionPlatformEvent CreateFromCommand(CreateDistributionPlatformCommand command)
+            => new CreateDistributionPlatformEvent(command.DistributionPlatformId, command.Name);
     }
 }

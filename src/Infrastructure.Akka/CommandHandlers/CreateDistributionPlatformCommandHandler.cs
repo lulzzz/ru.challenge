@@ -17,8 +17,7 @@ namespace RU.Challenge.Infrastructure.Akka.CommandHandlers
 
         public Task Handle(CreateDistributionPlatformCommand message, CancellationToken cancellationToken)
         {
-            var distributionPlatformId = Guid.NewGuid();
-            var distributionPlatformActor = _actorSystem.ActorOf(DistributionPlatformActor.GetProps(distributionPlatformId));
+            var distributionPlatformActor = _actorSystem.ActorOf(DistributionPlatformActor.GetProps(message.DistributionPlatformId));
             distributionPlatformActor.Tell(message);
             return Task.CompletedTask;
         }

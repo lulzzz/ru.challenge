@@ -17,8 +17,7 @@ namespace RU.Challenge.Infrastructure.Akka.CommandHandlers
 
         public Task Handle(CreateSubscriptionCommand message, CancellationToken cancellationToken)
         {
-            var subscriptionId = Guid.NewGuid();
-            var subscriptionActor = _actorSystem.ActorOf(SubscriptionActor.GetProps(subscriptionId));
+            var subscriptionActor = _actorSystem.ActorOf(SubscriptionActor.GetProps(message.SubscriptionId));
             subscriptionActor.Tell(message);
             return Task.CompletedTask;
         }

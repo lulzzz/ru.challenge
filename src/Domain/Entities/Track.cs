@@ -25,15 +25,11 @@ namespace RU.Challenge.Domain.Entities
         public void SetGenre(Genre genre)
             => Genre = genre;
 
-        private Track(Guid id, string name, string songUrl) : this()
+        private Track(Guid id, string name, string songUrl)
         {
             Id = id;
             Name = name;
             SongUrl = songUrl;
-        }
-
-        private Track()
-        {
         }
 
         public static Track Create(Guid id, string name, string songUrl)

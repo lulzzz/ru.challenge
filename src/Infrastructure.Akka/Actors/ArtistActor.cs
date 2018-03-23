@@ -21,7 +21,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             switch (message)
             {
                 case CreateArtistCommand createArtistCommand:
-                    var createArtistEvent = CreateArtistEvent.CreateFromCommand(createArtistCommand, _id);
+                    var createArtistEvent = CreateArtistEvent.CreateFromCommand(createArtistCommand);
                     Persist(createArtistEvent, CreateArtistEventHandler);
                     Context.System.EventStream.Publish(createArtistEvent);
                     SnapshotCheck();

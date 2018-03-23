@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using RU.Challenge.Infrastructure.Identity.DTO;
 using System.Collections.Generic;
 using System.Security.Claims;
+using RU.Challenge.Presentation.API.Enums;
 
 namespace RU.Challenge.Presentation.API.Controllers
 {
@@ -34,9 +35,11 @@ namespace RU.Challenge.Presentation.API.Controllers
             _signInManager = signInManager;
         }
 
+
+
         [HttpPost]
         [Route("register")]
-        public async Task<IActionResult> RegisterUser([FromBody] CreateUser userModel)
+        public async Task<IActionResult> RegisterUser([FromBody] CreateUser userModel, ClaimsEnum claim)
         {
             if (!ModelState.IsValid)
                 return BadRequest($"The field(s) {string.Join(", ", ModelState.Select(e => e.Key))} are not valid");
@@ -52,10 +55,8 @@ namespace RU.Challenge.Presentation.API.Controllers
                 UserName = userModel.Username,
             };
 
-            // TODO: These values should not be here
-            var claims = new[] {
-                new Claim("roles", "api_access"),
-                new Claim("roles", "api_release_manager")
+            var userClaims = new[] {
+                new Claim("roles", claim.ToString())
             };
 
             // Add the user
@@ -64,9 +65,9 @@ namespace RU.Challenge.Presentation.API.Controllers
             if (result.Succeeded)
             {
                 // Add claims
-                await _userManager.AddClaimsAsync(user, claims);
+                await _userManager.AddClaimsAsync(user, userClaims);
 
-                var token = GenerateToken(userId, claims, user.UserName);
+                var token = GenerateToken(userId, userClaims, user.UserName);
                 return Ok(token);
             }
 
@@ -94,7 +95,7 @@ namespace RU.Challenge.Presentation.API.Controllers
 
         [HttpPost]
         [Route("refreshtoken")]
-        [Authorize(Roles = "api_access, api_release_manager")]
+        [Authorize(Roles = "DataEntry, ReleaseManager")]
         public IActionResult RefreshToken()
         {
             var roles = User.Claims.GetRoles();

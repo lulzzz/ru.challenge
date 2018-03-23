@@ -23,7 +23,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             switch (message)
             {
                 case CreateSubscriptionCommand createSubscriptionCommand:
-                    var createSubscriptionEvent = CreateSubscriptionEvent.CreateFromCommand(createSubscriptionCommand, _id);
+                    var createSubscriptionEvent = CreateSubscriptionEvent.CreateFromCommand(createSubscriptionCommand);
                     Persist(createSubscriptionEvent, CreateSubscriptionEventHandler);
                     Context.System.EventStream.Publish(createSubscriptionEvent);
                     SnapshotCheck();

@@ -17,8 +17,7 @@ namespace RU.Challenge.Infrastructure.Akka.CommandHandlers
 
         public Task Handle(CreatePaymentMethodCommand message, CancellationToken cancellationToken)
         {
-            var paymentMethodId = Guid.NewGuid();
-            var paymentMethodActor = _actorSystem.ActorOf(PaymentMethodActor.GetProps(paymentMethodId));
+            var paymentMethodActor = _actorSystem.ActorOf(PaymentMethodActor.GetProps(message.PaymentMethodId));
             paymentMethodActor.Tell(message);
             return Task.CompletedTask;
         }

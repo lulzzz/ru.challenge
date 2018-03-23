@@ -125,6 +125,7 @@ namespace RU.Challenge.Presentation.API
             builder.RegisterType<PaymentMethodProjectionActor>();
             builder.RegisterType<DistributionPlatformProjectionActor>();
             builder.RegisterType<SubscriptionProjectionActor>();
+            builder.RegisterType<ReleaseProjectionActor>();
 
             // Resolver
             builder
@@ -185,6 +186,10 @@ namespace RU.Challenge.Presentation.API
             builder
                 .RegisterType<SubscriptionRepository>()
                 .As<ISubscriptionRepository>();
+
+            builder
+                .RegisterType<ReleaseRepository>()
+                .As<IReleaseRepository>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

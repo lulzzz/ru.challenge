@@ -1,9 +1,12 @@
 ﻿using MediatR;
+using System;
 
 namespace RU.Challenge.Domain.Commands
 {
     public class CreateArtistCommand : IRequest
     {
+        public Guid ArtistId { get; set; }
+
         public int Age { get; set; }
 
         public string Name { get; set; }
@@ -12,6 +15,12 @@ namespace RU.Challenge.Domain.Commands
         {
             Age = age;
             Name = name;
+        }
+
+        public CreateArtistCommand(Guid artistId, int age, string name)
+            :this(age, name)
+        {
+            ArtistId = artistId;
         }
     }
 }

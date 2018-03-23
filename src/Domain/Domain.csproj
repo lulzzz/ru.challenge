@@ -9,9 +9,7 @@
   <ItemGroup>
     <Compile Remove="Commands\CreateTrackCommand.cs" />
     <Compile Remove="Commands\SetTrackOrderCommand.cs" />
-    <Compile Remove="Entities\Release.cs" />
     <Compile Remove="Entities\ReleaseManager.cs" />
-    <Compile Remove="Entities\Track.cs" />
     <Compile Remove="Events\CreateTrackEvent.cs" />
     <Compile Remove="Events\SetTrackOrderEvent.cs" />
   </ItemGroup>

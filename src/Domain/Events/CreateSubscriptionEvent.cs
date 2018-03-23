@@ -30,7 +30,7 @@ namespace RU.Challenge.Domain.Events
             Amount = amount;
         }
 
-        public static CreateSubscriptionEvent CreateFromCommand(CreateSubscriptionCommand command, Guid id)
-            => new CreateSubscriptionEvent(id, command.PaymentMethodId, command.DistributionPlatformIds, command.ExpirationDate, command.Amount);
+        public static CreateSubscriptionEvent CreateFromCommand(CreateSubscriptionCommand command)
+            => new CreateSubscriptionEvent(command.SubscriptionId, command.PaymentMethodId, command.DistributionPlatformIds, command.ExpirationDate, command.Amount);
     }
 }

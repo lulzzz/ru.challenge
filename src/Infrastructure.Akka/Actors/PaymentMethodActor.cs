@@ -21,7 +21,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             switch (message)
             {
                 case CreatePaymentMethodCommand createPaymentMethodCommand:
-                    var createPaymentMethodEvent = CreatePaymentMethodEvent.CreateFromCommand(createPaymentMethodCommand, _id);
+                    var createPaymentMethodEvent = CreatePaymentMethodEvent.CreateFromCommand(createPaymentMethodCommand);
                     Persist(createPaymentMethodEvent, CreatePaymentMethodEventHandler);
                     Context.System.EventStream.Publish(createPaymentMethodEvent);
                     SnapshotCheck();

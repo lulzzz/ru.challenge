@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 namespace RU.Challenge.Presentation.API.Controllers
 {
     [Route("api")]
-    [Authorize(Roles = "api_access, api_release_manager")]
+    [Authorize(Roles = "DataEntry, ReleaseManager")]
     public class SubscriptionController : Controller
     {
         private readonly IMediator _mediator;
@@ -21,15 +21,15 @@ namespace RU.Challenge.Presentation.API.Controllers
             => _mediator = mediator;
 
         [HttpGet]
-        [Route("subscription")]
+        [Route("subscriptions")]
         public async Task<IEnumerable<Domain.Entities.Subscription>> GetSubscriptions()
         {
             return await _mediator.Send(new GetAllSubscriptionsQuery());
         }
 
         [HttpPost]
-        [Route("subscription")]
-        public async Task<IActionResult> AddSubscription([FromBody] Domain.Commands.CreateSubscriptionCommand command)
+        [Route("subscriptions")]
+        public async Task<IActionResult> AddSubscription([FromBody] CreateSubscriptionCommand command)
         {
             var invalidDistributionPlatforms = await GetInvalidDistributionPlatforms(command.DistributionPlatformIds);
 
@@ -41,8 +41,10 @@ namespace RU.Challenge.Presentation.API.Controllers
             if (paymentMethod == null)
                 return BadRequest($"The platform: {command.PaymentMethodId} does not exist");
 
+            var subscriptionId = Guid.NewGuid();
+            command.SubscriptionId = subscriptionId;
             await _mediator.Send(command);
-            return Accepted();
+            return Accepted(subscriptionId);
         }
 
         [HttpPost]

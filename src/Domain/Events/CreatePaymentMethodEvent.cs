@@ -15,7 +15,7 @@ namespace RU.Challenge.Domain.Events
             Name = name;
         }
 
-        public static CreatePaymentMethodEvent CreateFromCommand(CreatePaymentMethodCommand command, Guid id)
-            => new CreatePaymentMethodEvent(id, command.Name);
+        public static CreatePaymentMethodEvent CreateFromCommand(CreatePaymentMethodCommand command)
+            => new CreatePaymentMethodEvent(command.PaymentMethodId, command.Name);
     }
 }

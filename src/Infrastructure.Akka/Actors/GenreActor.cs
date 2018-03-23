@@ -21,7 +21,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             switch (message)
             {
                 case CreateGenreCommand createGenreCommand:
-                    var createGenreEvent = CreateGenreEvent.CreateFromCommand(createGenreCommand, _id);
+                    var createGenreEvent = CreateGenreEvent.CreateFromCommand(createGenreCommand);
                     Persist(createGenreEvent, CreateGenreEventHandler);
                     Context.System.EventStream.Publish(createGenreEvent);
                     SnapshotCheck();

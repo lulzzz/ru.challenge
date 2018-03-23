@@ -2,23 +2,22 @@
 using MediatR;
 using RU.Challenge.Domain.Commands;
 using RU.Challenge.Infrastructure.Akka.Actors;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace RU.Challenge.Infrastructure.Akka.CommandHandlers
 {
-    public class CreateGenreCommandHandler : IRequestHandler<CreateGenreCommand>
+    public class CreateReleaseCommandHandler : IRequestHandler<CreateReleaseCommand>
     {
         private readonly ActorSystem _actorSystem;
 
-        public CreateGenreCommandHandler(ActorSystem actorSystem)
+        public CreateReleaseCommandHandler(ActorSystem actorSystem)
             => _actorSystem = actorSystem;
 
-        public Task Handle(CreateGenreCommand message, CancellationToken cancellationToken)
+        public Task Handle(CreateReleaseCommand message, CancellationToken cancellationToken)
         {
-            var genreActor = _actorSystem.ActorOf(GenreActor.GetProps(message.GenreId));
-            genreActor.Tell(message);
+            var releaseActor = _actorSystem.ActorOf(ReleaseActor.GetProps(message.ReleaseId));
+            releaseActor.Tell(message);
             return Task.CompletedTask;
         }
     }

@@ -17,8 +17,7 @@ namespace RU.Challenge.Infrastructure.Akka.CommandHandlers
 
         public Task Handle(CreateArtistCommand message, CancellationToken cancellationToken)
         {
-            var artistId = Guid.NewGuid();
-            var artistActor = _actorSystem.ActorOf(ArtistActor.GetProps(artistId));
+            var artistActor = _actorSystem.ActorOf(ArtistActor.GetProps(message.ArtistId));
             artistActor.Tell(message);
             return Task.CompletedTask;
         }

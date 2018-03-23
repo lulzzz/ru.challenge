@@ -21,7 +21,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             switch (message)
             {
                 case CreateDistributionPlatformCommand createDistributionPlatformCommand:
-                    var createDistributionPlatformEvent = CreateDistributionPlatformEvent.CreateFromCommand(createDistributionPlatformCommand, _id);
+                    var createDistributionPlatformEvent = CreateDistributionPlatformEvent.CreateFromCommand(createDistributionPlatformCommand);
                     Persist(createDistributionPlatformEvent, CreateDistributionPlatformEventHandler);
                     Context.System.EventStream.Publish(createDistributionPlatformEvent);
                     SnapshotCheck();

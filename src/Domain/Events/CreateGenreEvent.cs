@@ -15,7 +15,7 @@ namespace RU.Challenge.Domain.Events
             Name = name;
         }
 
-        public static CreateGenreEvent CreateFromCommand(CreateGenreCommand command, Guid id)
-            => new CreateGenreEvent(id, command.Name);
+        public static CreateGenreEvent CreateFromCommand(CreateGenreCommand command)
+            => new CreateGenreEvent(command.GenreId, command.Name);
     }
 }

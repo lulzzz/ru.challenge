@@ -33,6 +33,7 @@ namespace RU.Challenge.Presentation.API
                     system.ActorOf(resolver.Create<PaymentMethodProjectionActor>());
                     system.ActorOf(resolver.Create<DistributionPlatformProjectionActor>());
                     system.ActorOf(resolver.Create<SubscriptionProjectionActor>());
+                    system.ActorOf(resolver.Create<ReleaseProjectionActor>());
                 }
 
                 // Init Database

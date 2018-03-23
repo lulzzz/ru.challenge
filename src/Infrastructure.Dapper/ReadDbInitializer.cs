@@ -48,6 +48,10 @@ namespace RU.Challenge.Infrastructure.Dapper
             if (!subscriptionTable)
                 await _dbConnection.ExecuteAsync("CREATE TABLE subscription (id UUID PRIMARY KEY, expiration_date TIMESTAMP, amount DECIMAL, payment_method_id UUID, distribution_platforms_id UUID ARRAY)");
 
+            var releaseTable = await _dbConnection.ExecuteScalarAsync<bool>(GetExistsScript(tableName: "release"));
+            if (!releaseTable)
+                await _dbConnection.ExecuteAsync("CREATE TABLE release (id UUID PRIMARY KEY, title VARCHAR(100), cover_art_url TEXT, artist_id UUID, genre_id UUID, user_id UUID, status VARCHAR(10), subscription_id UUID, tracks_id UUID ARRAY)");
+
             _logger.LogInformation("All the tables were created");
         }
 

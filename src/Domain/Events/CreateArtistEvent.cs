@@ -18,7 +18,7 @@ namespace RU.Challenge.Domain.Events
             Name = name;
         }
 
-        public static CreateArtistEvent CreateFromCommand(CreateArtistCommand command, Guid id)
-            => new CreateArtistEvent(id, command.Age, command.Name);
+        public static CreateArtistEvent CreateFromCommand(CreateArtistCommand command)
+            => new CreateArtistEvent(command.ArtistId, command.Age, command.Name);
     }
 }
