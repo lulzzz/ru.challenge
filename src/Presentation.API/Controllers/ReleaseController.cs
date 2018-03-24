@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RU.Challenge.Domain.Commands;
 using RU.Challenge.Domain.Entities;
 using RU.Challenge.Domain.Queries;
@@ -30,9 +31,13 @@ namespace RU.Challenge.Presentation.API.Controllers
 
         [HttpGet]
         [Route("releases/id/{id}")]
-        public async Task<Release> GetReleseById([FromRoute] Guid id)
+        public async Task<IActionResult> GetReleseById([FromRoute] Guid id)
         {
-            return (await _mediator.Send(new GetReleasesByIdForUserQuery(ids: new[] { id }, userId: User.Claims.GetUserId()))).FirstOrDefault();
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
+            return Ok((await _mediator.Send(new GetReleasesByIdForUserQuery(ids: new[] { id }, userId: User.Claims.GetUserId()))).FirstOrDefault());
         }
 
         [HttpPost]
@@ -57,13 +62,20 @@ namespace RU.Challenge.Presentation.API.Controllers
         }
 
         [HttpPost]
-        [Route("releases/{releaseId}/addtrack")]
+        [Route("releases/{releaseId}/track")]
         public async Task<IActionResult> AddTrackToRelease([FromRoute] Guid releaseId, [FromBody] CreateTrackCommand command)
         {
-            var release = await _mediator.Send(new GetReleasesByIdForUserQuery(new[] { releaseId }, User.Claims.GetUserId()));
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
+            var release = await _mediator.Send(new GetReleaseStateByIdForUserQuery(releaseId, User.Claims.GetUserId()));
 
             if (release == null)
                 return BadRequest($"The release: {releaseId} does not exist");
+
+            if (release == Domain.Enums.ReleaseStatus.Published)
+                return BadRequest($"Cannot add tracks to a published release");
 
             var artist = await _mediator.Send(new GetArtistsByIdQuery(new[] { command.ArtistId }));
 
@@ -75,9 +87,32 @@ namespace RU.Challenge.Presentation.API.Controllers
             if (genre == null)
                 return BadRequest($"The genre: {command.GenreId} does not exist");
 
+            var trackId = Guid.NewGuid();
             command.SetReleaseId(releaseId);
+            command.SetTrackId(trackId);
             await _mediator.Send(command);
-            return Accepted();
+            return Created(new Uri($"{Request.Host}{Request.Path}/{releaseId}/track/{trackId}"), trackId);
+        }
+
+        [HttpGet]
+        [Route("releases/{releaseId}/track/{trackId}")]
+        public async Task<IActionResult> GetTrack([FromRoute] Guid releaseId, [FromRoute] Guid trackId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
+            var releaseTracks = await _mediator.Send(new GetTracksIdOfReleaseForUserQuery(releaseId, User.Claims.GetUserId()));
+
+            if (releaseTracks == null || !releaseTracks.Any())
+                return BadRequest($"The release: {releaseId} does not exist or does not have any tracks");
+
+            var validTrackId = releaseTracks.Any(e => e == trackId);
+
+            if (!validTrackId)
+                return BadRequest($"The release: {releaseId} does not have the track {trackId}");
+
+            return Ok(await _mediator.Send(new GetTracksByIdQuery(new[] { trackId })));
         }
     }
 }

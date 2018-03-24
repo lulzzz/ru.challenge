@@ -1,6 +1,7 @@
 ﻿using Akka.Actor;
 using Akka.Persistence;
 using RU.Challenge.Domain.Commands;
+using RU.Challenge.Domain.Enums;
 using RU.Challenge.Domain.Events;
 using RU.Challenge.Infrastructure.Akka.States;
 using System;
@@ -31,15 +32,17 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
 
                 case CreateTrackCommand createTrackCommand:
 
+                    if (_state.Status == ReleaseStatus.Published)
+                        return false;
+
                     var order = _state.Tracks.Count();
                     createTrackCommand.SetOrder(order + 1);
                     var createTrackEvent = CreateTrackEvent.CreateFromCommand(createTrackCommand);
 
                     var trackActor = Context.ActorOf(TrackActor.GetProps(createTrackCommand.TrackId));
-                    trackActor.Forward(createTrackEvent);
+                    trackActor.Forward(createTrackCommand);
 
                     Persist(createTrackEvent, CreateTrackEventHandler);
-                    Context.System.EventStream.Publish(createTrackEvent);
                     SnapshotCheck();
                     return true;
 
@@ -57,6 +60,10 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             {
                 case CreateReleaseEvent createReleaseEvent:
                     CreateReleaseEventHandler(createReleaseEvent);
+                    return true;
+
+                case CreateTrackEvent createTrackEvent:
+                    CreateTrackEventHandler(createTrackEvent);
                     return true;
 
                 case SnapshotOffer snapshotOffer:

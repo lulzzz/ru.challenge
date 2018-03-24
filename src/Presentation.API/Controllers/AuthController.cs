@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using RU.Challenge.Domain.Entities.Auth;
 using RU.Challenge.Infrastructure.Identity;
@@ -40,7 +41,8 @@ namespace RU.Challenge.Presentation.API.Controllers
         public async Task<IActionResult> RegisterUser([FromBody] CreateUser userModel, ClaimsEnum claim)
         {
             if (!ModelState.IsValid)
-                return BadRequest($"The field(s) {string.Join(", ", ModelState.Select(e => e.Key))} are not valid");
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
 
             // Use a GUID for Id
             var userId = Guid.NewGuid();
@@ -77,7 +79,8 @@ namespace RU.Challenge.Presentation.API.Controllers
         public async Task<IActionResult> LoginUser([FromBody] LoginUser loginUser)
         {
             if (!ModelState.IsValid)
-                return BadRequest($"The field(s) {string.Join(", ", ModelState.Select(e => e.Key))} are not valid");
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
 
             var result = await _signInManager.PasswordSignInAsync(loginUser.UserName, loginUser.Password, isPersistent: true, lockoutOnFailure: false);
             if (result.Succeeded)

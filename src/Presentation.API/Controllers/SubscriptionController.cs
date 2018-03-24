@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using RU.Challenge.Domain.Commands;
 using RU.Challenge.Domain.Entities;
@@ -30,15 +31,23 @@ namespace RU.Challenge.Presentation.API.Controllers
 
         [HttpGet]
         [Route("subscriptions/id/{id}")]
-        public async Task<Subscription> GetSubscriptionById([FromRoute] Guid id)
+        public async Task<IActionResult> GetSubscriptionById([FromRoute] Guid id)
         {
-            return (await _mediator.Send(new GetSubscriptionsByIdQuery(new[] { id }))).FirstOrDefault();
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
+            return Ok((await _mediator.Send(new GetSubscriptionsByIdQuery(new[] { id }))).FirstOrDefault());
         }
 
         [HttpPost]
         [Route("subscriptions")]
         public async Task<IActionResult> AddSubscription([FromBody] CreateSubscriptionCommand command)
         {
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
             var invalidDistributionPlatforms = await GetInvalidDistributionPlatforms(command.DistributionPlatformIds);
 
             if (invalidDistributionPlatforms.Any())
@@ -60,6 +69,10 @@ namespace RU.Challenge.Presentation.API.Controllers
         public async Task<IActionResult> AddDistributionPlatform(
             [FromRoute] Guid subscriptionId, [FromRoute] Guid distributionPlatformId)
         {
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
             var existSubscription = await _mediator.Send(new ExistsSubscriptionByIdQuery(subscriptionId));
 
             if (existSubscription == false)

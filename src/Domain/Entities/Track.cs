@@ -12,12 +12,9 @@ namespace RU.Challenge.Domain.Entities
 
         public Genre Genre { get; private set; }
 
-        public int? Order { get; private set; }
+        public int Order { get; private set; }
 
         public string SongUrl { get; private set; }
-
-        public void SetOrder(int? order)
-            => Order = order;
 
         public void SetArtist(Artist artist)
             => Artist = artist;
@@ -25,14 +22,15 @@ namespace RU.Challenge.Domain.Entities
         public void SetGenre(Genre genre)
             => Genre = genre;
 
-        private Track(Guid id, string name, string songUrl)
+        private Track(Guid id, string name, string songUrl, int order)
         {
             Id = id;
             Name = name;
+            Order = order;
             SongUrl = songUrl;
         }
 
-        public static Track Create(Guid id, string name, string songUrl)
-            => new Track(id, name, songUrl);
+        public static Track Create(Guid id, string name, string songUrl, int order)
+            => new Track(id, name, songUrl, order);
     }
 }

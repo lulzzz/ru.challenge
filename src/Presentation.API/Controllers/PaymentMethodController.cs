@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using RU.Challenge.Domain.Commands;
 using RU.Challenge.Domain.Entities;
@@ -30,15 +31,23 @@ namespace RU.Challenge.Presentation.API.Controllers
 
         [HttpGet]
         [Route("paymentmethods/id/{id}")]
-        public async Task<PaymentMethod> GetPaymentMethodById([FromRoute] Guid id)
+        public async Task<IActionResult> GetPaymentMethodById([FromRoute] Guid id)
         {
-            return (await _mediator.Send(new GetPaymentMethodsByIdQuery(new[] { id }))).FirstOrDefault();
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
+            return Ok((await _mediator.Send(new GetPaymentMethodsByIdQuery(new[] { id }))).FirstOrDefault());
         }
 
         [HttpPost]
         [Route("paymentmethods")]
         public async Task<IActionResult> AddPaymentMethod([FromBody] CreatePaymentMethodCommand command)
         {
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
             var paymentMethodId = Guid.NewGuid();
             command.SetId(paymentMethodId);
             await _mediator.Send(command);

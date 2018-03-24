@@ -17,7 +17,7 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
         public async Task<bool> Handle(ExistsSubscriptionByIdQuery request, CancellationToken cancellationToken)
         {
             return await _dbConnection.ExecuteScalarAsync<bool>(
-                sql: "SELECT EXISTS (SELECT 1 FROM subscription  WHERE id = @Id)",
+                sql: "SELECT EXISTS (SELECT 1 FROM subscription WHERE id = @Id)",
                 param: new { request.Id });
         }
     }

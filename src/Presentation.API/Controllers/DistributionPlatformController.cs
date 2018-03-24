@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using RU.Challenge.Domain.Commands;
 using RU.Challenge.Domain.Entities;
@@ -30,15 +31,23 @@ namespace RU.Challenge.Presentation.API.Controllers
 
         [HttpGet]
         [Route("distributionplatforms/id/{id}")]
-        public async Task<DistributionPlatform> GetDistributionPlatformById([FromRoute] Guid id)
+        public async Task<IActionResult> GetDistributionPlatformById([FromRoute] Guid id)
         {
-            return (await _mediator.Send(new GetDistributionPlatformsByIdQuery(new[] { id }))).FirstOrDefault();
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
+            return Ok((await _mediator.Send(new GetDistributionPlatformsByIdQuery(new[] { id }))).FirstOrDefault());
         }
 
         [HttpPost]
         [Route("distributionplatforms")]
         public async Task<IActionResult> AddDistributionPlatform([FromBody] CreateDistributionPlatformCommand command)
         {
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
             var distributionPlatformId = Guid.NewGuid();
             command.SetId(distributionPlatformId);
             await _mediator.Send(command);

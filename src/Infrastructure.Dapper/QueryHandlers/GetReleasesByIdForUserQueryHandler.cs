@@ -33,7 +33,7 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
 	                    r.artist_id as ""ArtistId"",
 	                    r.genre_id as ""GenreId"",
                         r.subscription_id as ""SubscriptionId"",
-	                    ARRAY(SELECT id FROM track WHERE release_id = r.id) as ""TracksId""
+	                    ARRAY(SELECT t.id FROM track t WHERE release_id = r.id) as ""TracksIds""
                         from release r
                         WHERE r.user_id = @UserId AND @Filter IS false OR id = ANY (@Ids)",
                 param: new
@@ -43,8 +43,12 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
                     Ids = request.Ids != null ? request.Ids.ToList() : request.Ids
                 });
 
-            var artists = await _mediator.Send(new GetArtistsByIdQuery(releases.Select(e => e.ArtistId).Distinct()));
             var genres = await _mediator.Send(new GetGenresByIdQuery(releases.Select(e => e.GenreId).Distinct()));
+            var artists = await _mediator.Send(new GetArtistsByIdQuery(releases.Select(e => e.ArtistId).Distinct()));
+
+            var tracks = Enumerable.Empty<Track>();
+            if (releases.Any(e => e.TracksIds != null && e.TracksIds.Any()))
+                tracks = await _mediator.Send(new GetTracksByIdQuery(releases.Where(e => e.TracksIds != null && e.TracksIds.Any()).SelectMany(e => e.TracksIds).Distinct()));
 
             var subscriptions = Enumerable.Empty<Subscription>();
             if (releases.Any(e => e.SubscriptionId != null))
@@ -59,6 +63,16 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
                     res.SetArtist(artists.SingleOrDefault(a => a.Id == e.ArtistId));
                     res.SetGenre(genres.SingleOrDefault(g => g.Id == e.GenreId));
                     res.SetSubscription(subscriptions.SingleOrDefault(s => s.Id == e.SubscriptionId));
+
+                    if (e.TracksIds != null)
+                    {
+                        foreach (var tr in e.TracksIds)
+                        {
+                            var track = tracks.SingleOrDefault(t => t.Id == tr);
+                            if (track != null)
+                                res.AddTrack(track);
+                        }
+                    }
 
                     return res;
                 });

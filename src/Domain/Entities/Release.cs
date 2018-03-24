@@ -32,15 +32,8 @@ namespace RU.Challenge.Domain.Entities
         public void SetSubscription(Subscription subscription)
             => Subscription = subscription;
 
-        //public void AddTrack(Track track)
-        //{
-        //    if (Subscription != null && Subscription.ExpirationDate > DateTimeOffset.Now)
-        //        throw new DomainException("Cannot add songs to a release with active subscription");
-
-        //    var lastOrder = Tracks.Max(e => e.Order) ?? 0;
-        //    track.SetOrder(lastOrder + 1);
-        //    Tracks = Tracks.Add(track);
-        //}
+        public void AddTrack(Track track)
+            => Tracks = Tracks.Add(track);
 
         private Release(
             Guid id,

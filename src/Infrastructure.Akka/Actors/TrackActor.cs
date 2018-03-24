@@ -25,6 +25,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
                 case CreateTrackCommand createTrackCommand:
                     var createTrackEvent = CreateTrackEvent.CreateFromCommand(createTrackCommand);
                     Persist(createTrackEvent, CreateTrackEventHandler);
+                    Context.System.EventStream.Publish(createTrackEvent);
                     SnapshotCheck();
                     return true;
 
@@ -71,6 +72,6 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
         }
 
         public static Props GetProps(Guid id)
-            => Props.Create(() => new ReleaseActor(id));
+            => Props.Create(() => new TrackActor(id));
     }
 }

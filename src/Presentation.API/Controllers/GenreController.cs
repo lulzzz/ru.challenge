@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Routing;
 using RU.Challenge.Domain.Commands;
 using RU.Challenge.Domain.Entities;
@@ -30,15 +31,23 @@ namespace RU.Challenge.Presentation.API.Controllers
 
         [HttpGet]
         [Route("genres/id/{id}")]
-        public async Task<Genre> GetGenreById([FromRoute] Guid id)
+        public async Task<IActionResult> GetGenreById([FromRoute] Guid id)
         {
-            return (await _mediator.Send(new GetGenresByIdQuery(new[] { id }))).FirstOrDefault();
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
+            return Ok((await _mediator.Send(new GetGenresByIdQuery(new[] { id }))).FirstOrDefault());
         }
 
         [HttpPost]
         [Route("genres")]
         public async Task<IActionResult> AddGenre([FromBody] CreateGenreCommand command)
         {
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
             var genreId = Guid.NewGuid();
             command.SetId(genreId);
             await _mediator.Send(command);
