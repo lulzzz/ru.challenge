@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using RU.Challenge.Domain.Commands;
+using RU.Challenge.Domain.Entities;
 using RU.Challenge.Domain.Queries;
 using System;
 using System.Collections.Generic;
@@ -20,26 +22,33 @@ namespace RU.Challenge.Presentation.API.Controllers
 
         [HttpGet]
         [Route("artists")]
-        public async Task<IEnumerable<Domain.Entities.Artist>> GetArtists()
+        public async Task<IEnumerable<Artist>> GetArtists()
         {
             return await _mediator.Send(new GetArtistsByNameQuery(name: null));
         }
 
         [HttpGet]
-        [Route("artists/{name}")]
-        public async Task<IEnumerable<Domain.Entities.Artist>> GetArtistsByName([FromRoute] string name)
+        [Route("artists/name/{name}")]
+        public async Task<IEnumerable<Artist>> GetArtistsByName([FromRoute] string name)
         {
             return await _mediator.Send(new GetArtistsByNameQuery(name));
         }
 
+        [HttpGet]
+        [Route("artists/id/{id}")]
+        public async Task<Artist> GetArtistById([FromRoute] Guid id)
+        {
+            return await _mediator.Send(new GetArtistByIdQuery(id));
+        }
+
         [HttpPost]
         [Route("artists")]
-        public async Task<IActionResult> AddArtist([FromBody] Domain.Commands.CreateArtistCommand command)
+        public async Task<IActionResult> AddArtist([FromBody] CreateArtistCommand command)
         {
             var artistId = Guid.NewGuid();
-            command.ArtistId = artistId;
+            command.SetId(artistId);
             await _mediator.Send(command);
-            return Accepted(artistId);
+            return Created(new Uri($"{Request.Host}{Request.Path}/id/{artistId}"), artistId);
         }
     }
 }

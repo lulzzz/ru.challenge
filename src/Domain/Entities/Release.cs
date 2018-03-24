@@ -2,7 +2,6 @@
 using RU.Challenge.Domain.Exceptions;
 using System;
 using System.Collections.Immutable;
-using System.Linq;
 
 namespace RU.Challenge.Domain.Entities
 {

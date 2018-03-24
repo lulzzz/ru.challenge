@@ -1,8 +1,6 @@
 ﻿using Akka.Actor;
 using Infrastructure.Repositories;
 using RU.Challenge.Domain.Events;
-using System;
-using System.Threading.Tasks;
 
 namespace RU.Challenge.Infrastructure.Akka.Projection
 {

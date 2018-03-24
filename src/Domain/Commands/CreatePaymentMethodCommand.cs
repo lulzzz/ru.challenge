@@ -5,15 +5,14 @@ namespace RU.Challenge.Domain.Commands
 {
     public class CreatePaymentMethodCommand : IRequest
     {
-        public Guid PaymentMethodId { get; set; }
+        public Guid PaymentMethodId { get; private set; }
 
         public string Name { get; set; }
 
         public CreatePaymentMethodCommand(string name)
             => Name = name;
 
-        public CreatePaymentMethodCommand(Guid paymentMethodId, string name)
-            : this(name)
+        public void SetId(Guid paymentMethodId)
         {
             PaymentMethodId = paymentMethodId;
         }

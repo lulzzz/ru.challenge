@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using RU.Challenge.Domain.Commands;
+using RU.Challenge.Domain.Entities;
 using RU.Challenge.Domain.Queries;
 using System;
 using System.Collections.Generic;
@@ -20,19 +22,26 @@ namespace RU.Challenge.Presentation.API.Controllers
 
         [HttpGet]
         [Route("paymentmethods")]
-        public async Task<IEnumerable<Domain.Entities.PaymentMethod>> GetPaymentMethods()
+        public async Task<IEnumerable<PaymentMethod>> GetPaymentMethods()
         {
             return await _mediator.Send(new GetAllPaymentMethodsQuery());
         }
 
+        [HttpGet]
+        [Route("paymentmethods/id/{id}")]
+        public async Task<PaymentMethod> GetPaymentMethodById([FromRoute] Guid id)
+        {
+            return await _mediator.Send(new GetPaymentMethodByIdQuery(id));
+        }
+
         [HttpPost]
         [Route("paymentmethods")]
-        public async Task<IActionResult> AddPaymentMethod([FromBody] Domain.Commands.CreatePaymentMethodCommand command)
+        public async Task<IActionResult> AddPaymentMethod([FromBody] CreatePaymentMethodCommand command)
         {
             var paymentMethodId = Guid.NewGuid();
-            command.PaymentMethodId = paymentMethodId;
+            command.SetId(paymentMethodId);
             await _mediator.Send(command);
-            return Accepted(paymentMethodId);
+            return Created(new Uri($"{Request.Host}{Request.Path}/id/{paymentMethodId}"), paymentMethodId);
         }
     }
 }

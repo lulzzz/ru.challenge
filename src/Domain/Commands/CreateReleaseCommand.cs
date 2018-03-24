@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using RU.Challenge.Domain.Entities;
 using System;
 
 namespace RU.Challenge.Domain.Commands
@@ -26,10 +25,13 @@ namespace RU.Challenge.Domain.Commands
             CoverArtUrl = coverArtUrl;
         }
 
-        public CreateReleaseCommand(Guid releaseId, string title, Guid artistId, Guid genreId, string coverArtUrl, Guid userId)
-            : this(title, artistId, genreId, coverArtUrl)
+        public void SetId(Guid releaseId)
         {
             ReleaseId = releaseId;
+        }
+
+        public void SetUserId(Guid userId)
+        {
             UserId = userId;
         }
     }

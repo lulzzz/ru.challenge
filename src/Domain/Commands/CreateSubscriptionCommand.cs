@@ -6,7 +6,7 @@ namespace RU.Challenge.Domain.Commands
 {
     public class CreateSubscriptionCommand : IRequest
     {
-        public Guid SubscriptionId { get; set; }
+        public Guid SubscriptionId { get; private set; }
 
         public Guid PaymentMethodId { get; set; }
 
@@ -28,13 +28,7 @@ namespace RU.Challenge.Domain.Commands
             Amount = amount;
         }
 
-        public CreateSubscriptionCommand(
-            Guid subscriptionId,
-            Guid paymentMethodId,
-            IEnumerable<Guid> distributionPlatformIds,
-            DateTimeOffset expirationDate,
-            decimal amount)
-            : this(paymentMethodId, distributionPlatformIds, expirationDate, amount)
+        public void SetId(Guid subscriptionId)
         {
             SubscriptionId = subscriptionId;
         }

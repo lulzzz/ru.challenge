@@ -1,17 +1,17 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using RU.Challenge.Domain.Entities.Auth;
 using RU.Challenge.Infrastructure.Identity;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
-using RU.Challenge.Infrastructure.Identity.Extensions;
-using Microsoft.AspNetCore.Authorization;
 using RU.Challenge.Infrastructure.Identity.DTO;
-using System.Collections.Generic;
-using System.Security.Claims;
+using RU.Challenge.Infrastructure.Identity.Extensions;
 using RU.Challenge.Presentation.API.Enums;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace RU.Challenge.Presentation.API.Controllers
 {
@@ -34,8 +34,6 @@ namespace RU.Challenge.Presentation.API.Controllers
             _roleManager = roleManager;
             _signInManager = signInManager;
         }
-
-
 
         [HttpPost]
         [Route("register")]

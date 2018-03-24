@@ -66,7 +66,8 @@ namespace RU.Challenge.Presentation.API
                 });
 
             services
-                .AddIdentity<User, Role>(c => {
+                .AddIdentity<User, Role>(c =>
+                {
                     c.Password.RequireDigit = false;
                     c.Password.RequireNonAlphanumeric = false;
                     c.Password.RequireUppercase = false;
@@ -233,10 +234,10 @@ namespace RU.Challenge.Presentation.API
                 ValidAudience = audience,
                 IssuerSigningKey = signingKey,
                 ClockSkew = TimeSpan.Zero,
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateIssuerSigningKey = false,
-                ValidateLifetime = false,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateIssuerSigningKey = true,
+                ValidateLifetime = true,
             };
         }
     }

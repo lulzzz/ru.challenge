@@ -2,7 +2,6 @@
 using MediatR;
 using RU.Challenge.Domain.Commands;
 using RU.Challenge.Infrastructure.Akka.Actors;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 

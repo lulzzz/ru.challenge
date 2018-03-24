@@ -1,12 +1,11 @@
-﻿using MediatR;
+﻿using Dapper;
+using MediatR;
 using RU.Challenge.Domain.Entities;
 using RU.Challenge.Domain.Queries;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Dapper;
 
 namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
 {
@@ -21,7 +20,8 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
         {
             return await _dbConnection.QueryAsync<Artist>(
                 sql: "SELECT * FROM artist WHERE @Name IS NULL OR name LIKE @Name",
-                param: new {
+                param: new
+                {
                     Name = request.Name != null ? $"%{request.Name}%" : request.Name
                 });
         }

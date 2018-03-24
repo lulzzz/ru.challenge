@@ -2,11 +2,9 @@
 using MediatR;
 using RU.Challenge.Domain.Entities;
 using RU.Challenge.Domain.Queries;
-using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
