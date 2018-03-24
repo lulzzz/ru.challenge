@@ -7,6 +7,7 @@ using RU.Challenge.Domain.Entities;
 using RU.Challenge.Domain.Queries;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RU.Challenge.Presentation.API.Controllers
@@ -24,14 +25,14 @@ namespace RU.Challenge.Presentation.API.Controllers
         [Route("genres")]
         public async Task<IEnumerable<Genre>> GetGenres()
         {
-            return await _mediator.Send(new GetAllGenresQuery());
+            return await _mediator.Send(new GetGenresByIdQuery(ids: null));
         }
 
         [HttpGet]
         [Route("genres/id/{id}")]
         public async Task<Genre> GetGenreById([FromRoute] Guid id)
         {
-            return await _mediator.Send(new GetGenreByIdQuery(id));
+            return (await _mediator.Send(new GetGenresByIdQuery(new[] { id }))).FirstOrDefault();
         }
 
         [HttpPost]

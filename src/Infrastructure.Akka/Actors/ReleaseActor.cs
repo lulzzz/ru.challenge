@@ -29,6 +29,20 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
                     SnapshotCheck();
                     return true;
 
+                case CreateTrackCommand createTrackCommand:
+
+                    var order = _state.Tracks.Count();
+                    createTrackCommand.SetOrder(order + 1);
+                    var createTrackEvent = CreateTrackEvent.CreateFromCommand(createTrackCommand);
+
+                    var trackActor = Context.ActorOf(TrackActor.GetProps(createTrackCommand.TrackId));
+                    trackActor.Forward(createTrackEvent);
+
+                    Persist(createTrackEvent, CreateTrackEventHandler);
+                    Context.System.EventStream.Publish(createTrackEvent);
+                    SnapshotCheck();
+                    return true;
+
                 case RecoveryCompleted recoveryCompleted:
                     Log.Info($"Artist with ID {PersistenceId} recovery completed");
                     return true;
@@ -71,6 +85,11 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
                 subscriptionId: default(Guid),
                 userId: createReleaseEvent.UserId,
                 status: Domain.Enums.ReleaseStatus.Created);
+        }
+
+        private void CreateTrackEventHandler(CreateTrackEvent createTrackEvent)
+        {
+            _state.Tracks.Add(createTrackEvent.Id);
         }
 
         public static Props GetProps(Guid id)

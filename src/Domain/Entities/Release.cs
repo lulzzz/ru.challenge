@@ -23,6 +23,15 @@ namespace RU.Challenge.Domain.Entities
 
         public ReleaseStatus Status { get; private set; }
 
+        public void SetArtist(Artist artist)
+            => Artist = artist;
+        
+        public void SetGenre(Genre genre)
+            => Genre = genre;
+
+        public void SetSubscription(Subscription subscription)
+            => Subscription = subscription;
+
         //public void AddTrack(Track track)
         //{
         //    if (Subscription != null && Subscription.ExpirationDate > DateTimeOffset.Now)
@@ -33,32 +42,22 @@ namespace RU.Challenge.Domain.Entities
         //    Tracks = Tracks.Add(track);
         //}
 
-        public void AssociateSubscription(Subscription subscription)
-        {
-            if (Subscription != null && Subscription.ExpirationDate > DateTimeOffset.Now)
-                throw new DomainException("The release already has an active subscription");
-
-            Subscription = subscription;
-        }
-
         private Release(
             Guid id,
             string title,
-            Artist artist,
-            Genre genre,
-            string coverArtUrl) : this()
+            string coverArtUrl,
+            ReleaseStatus status) : this()
         {
             Id = id;
             Title = title;
-            Artist = artist;
-            Genre = genre;
             CoverArtUrl = coverArtUrl;
+            Status = status;
         }
 
         private Release()
             => Tracks = ImmutableList.Create<Track>();
 
-        public static Release Create(Guid id, string title, Artist artist, Genre genre, string coverArtUrl)
-            => new Release(id, title, artist, genre, coverArtUrl);
+        public static Release Create(Guid id, string title, string coverArtUrl, ReleaseStatus status)
+            => new Release(id, title, coverArtUrl, status);
     }
 }

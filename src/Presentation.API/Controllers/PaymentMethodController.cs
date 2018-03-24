@@ -7,6 +7,7 @@ using RU.Challenge.Domain.Entities;
 using RU.Challenge.Domain.Queries;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RU.Challenge.Presentation.API.Controllers
@@ -24,14 +25,14 @@ namespace RU.Challenge.Presentation.API.Controllers
         [Route("paymentmethods")]
         public async Task<IEnumerable<PaymentMethod>> GetPaymentMethods()
         {
-            return await _mediator.Send(new GetAllPaymentMethodsQuery());
+            return await _mediator.Send(new GetPaymentMethodsByIdQuery(ids: null));
         }
 
         [HttpGet]
         [Route("paymentmethods/id/{id}")]
         public async Task<PaymentMethod> GetPaymentMethodById([FromRoute] Guid id)
         {
-            return await _mediator.Send(new GetPaymentMethodByIdQuery(id));
+            return (await _mediator.Send(new GetPaymentMethodsByIdQuery(new[] { id }))).FirstOrDefault();
         }
 
         [HttpPost]

@@ -25,14 +25,14 @@ namespace RU.Challenge.Presentation.API.Controllers
         [Route("subscriptions")]
         public async Task<IEnumerable<Subscription>> GetSubscriptions()
         {
-            return await _mediator.Send(new GetAllSubscriptionsQuery());
+            return await _mediator.Send(new GetSubscriptionsByIdQuery(ids: null));
         }
 
         [HttpGet]
         [Route("subscriptions/id/{id}")]
         public async Task<Subscription> GetSubscriptionById([FromRoute] Guid id)
         {
-            return await _mediator.Send(new GetSubscriptionByIdQuery(id));
+            return (await _mediator.Send(new GetSubscriptionsByIdQuery(new[] { id }))).FirstOrDefault();
         }
 
         [HttpPost]
@@ -44,7 +44,7 @@ namespace RU.Challenge.Presentation.API.Controllers
             if (invalidDistributionPlatforms.Any())
                 return BadRequest($"The distribution platforms: {string.Join(", ", invalidDistributionPlatforms.Select(e => e.ToString()))} do not exist");
 
-            var paymentMethod = await _mediator.Send(new GetPaymentMethodByIdQuery(command.PaymentMethodId));
+            var paymentMethod = await _mediator.Send(new GetPaymentMethodsByIdQuery(new[] { command.PaymentMethodId }));
 
             if (paymentMethod == null)
                 return BadRequest($"The payment method: {command.PaymentMethodId} does not exist");
@@ -56,13 +56,13 @@ namespace RU.Challenge.Presentation.API.Controllers
         }
 
         [HttpPost]
-        [Route("subscription/{subscriptionId}/adddistributionplatform/{distributionPlatformId}")]
+        [Route("subscriptions/{subscriptionId}/adddistributionplatform/{distributionPlatformId}")]
         public async Task<IActionResult> AddDistributionPlatform(
             [FromRoute] Guid subscriptionId, [FromRoute] Guid distributionPlatformId)
         {
-            var subscription = await _mediator.Send(new GetSubscriptionByIdQuery(subscriptionId));
+            var existSubscription = await _mediator.Send(new ExistsSubscriptionByIdQuery(subscriptionId));
 
-            if (subscription == null)
+            if (existSubscription == false)
                 return BadRequest($"The subscription: {subscriptionId} does not exist");
 
             var invalidDistributionPlatforms = await GetInvalidDistributionPlatforms(new[] { distributionPlatformId });

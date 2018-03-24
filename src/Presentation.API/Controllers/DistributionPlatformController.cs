@@ -25,7 +25,7 @@ namespace RU.Challenge.Presentation.API.Controllers
         [Route("distributionplatforms")]
         public async Task<IEnumerable<DistributionPlatform>> GetDistributionPlatforms()
         {
-            return await _mediator.Send(new GetAllDistributionPlatformsQuery());
+            return await _mediator.Send(new GetDistributionPlatformsByIdQuery(ids: null));
         }
 
         [HttpGet]

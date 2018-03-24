@@ -3,11 +3,11 @@ using System;
 
 namespace RU.Challenge.Domain.Queries
 {
-    public class GetGenreByIdQuery : IRequest<Entities.Genre>
+    public class ExistsSubscriptionByIdQuery : IRequest<bool>
     {
         public Guid Id { get; set; }
 
-        public GetGenreByIdQuery(Guid id)
+        public ExistsSubscriptionByIdQuery(Guid id)
             => Id = id;
     }
 }

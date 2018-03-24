@@ -15,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Converters;
 using Npgsql;
 using RU.Challenge.Domain.Entities.Auth;
 using RU.Challenge.Infrastructure.Akka.Projection;
@@ -89,7 +90,9 @@ namespace RU.Challenge.Presentation.API
                     opt.SaveToken = true;
                 });
 
-            services.AddMvc(options => options.Filters.Add(new ProducesAttribute("application/json")));
+            services
+                .AddMvc(options => options.Filters.Add(new ProducesAttribute("application/json")))
+                .AddJsonOptions(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()));
         }
 
         public void ConfigureContainer(ContainerBuilder builder)
@@ -127,6 +130,7 @@ namespace RU.Challenge.Presentation.API
             builder.RegisterType<DistributionPlatformProjectionActor>();
             builder.RegisterType<SubscriptionProjectionActor>();
             builder.RegisterType<ReleaseProjectionActor>();
+            builder.RegisterType<TrackProjectionActor>();
 
             // Resolver
             builder
@@ -191,6 +195,10 @@ namespace RU.Challenge.Presentation.API
             builder
                 .RegisterType<ReleaseRepository>()
                 .As<IReleaseRepository>();
+
+            builder
+                .RegisterType<TrackRepository>()
+                .As<ITrackRepository>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)

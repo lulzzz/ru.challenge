@@ -50,7 +50,11 @@ namespace RU.Challenge.Infrastructure.Dapper
 
             var releaseTable = await _dbConnection.ExecuteScalarAsync<bool>(GetExistsScript(tableName: "release"));
             if (!releaseTable)
-                await _dbConnection.ExecuteAsync("CREATE TABLE release (id UUID PRIMARY KEY, title VARCHAR(100), cover_art_url TEXT, artist_id UUID, genre_id UUID, user_id UUID, status VARCHAR(10), subscription_id UUID, tracks_id UUID ARRAY)");
+                await _dbConnection.ExecuteAsync("CREATE TABLE release (id UUID PRIMARY KEY, title VARCHAR(100), cover_art_url TEXT, artist_id UUID, genre_id UUID, user_id UUID, status VARCHAR(10), subscription_id UUID)");
+
+            var trackTable = await _dbConnection.ExecuteScalarAsync<bool>(GetExistsScript(tableName: "track"));
+            if (!trackTable)
+                await _dbConnection.ExecuteAsync("CREATE TABLE track (id UUID PRIMARY KEY, release_id UUID, name VARCHAR(100), song_url TEXT, artist_id UUID, genre_id UUID, track_order INT)");
 
             _logger.LogInformation("All the tables were created");
         }

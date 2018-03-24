@@ -10,17 +10,17 @@ using System.Threading.Tasks;
 
 namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
 {
-    public class GetDistributionPlatformsByIdQueryHandler : IRequestHandler<GetDistributionPlatformsByIdQuery, IEnumerable<DistributionPlatform>>
+    public class GetPaymentMethodsByIdQueryHandler : IRequestHandler<GetPaymentMethodsByIdQuery, IEnumerable<PaymentMethod>>
     {
         private readonly IDbConnection _dbConnection;
 
-        public GetDistributionPlatformsByIdQueryHandler(IDbConnection dbConnection)
+        public GetPaymentMethodsByIdQueryHandler(IDbConnection dbConnection)
             => _dbConnection = dbConnection;
 
-        public async Task<IEnumerable<DistributionPlatform>> Handle(GetDistributionPlatformsByIdQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<PaymentMethod>> Handle(GetPaymentMethodsByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _dbConnection.QueryAsync<DistributionPlatform>(
-                sql: $"SELECT * FROM distribution_platform WHERE @Filter IS false OR id = ANY (@Ids)",
+            return await _dbConnection.QueryAsync<PaymentMethod>(
+                sql: $"SELECT * FROM payment_method WHERE @Filter IS false OR id = ANY (@Ids)",
                 param: new
                 {
                     Filter = request.Ids != null && request.Ids.Any(),

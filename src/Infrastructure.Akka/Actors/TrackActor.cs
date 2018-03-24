@@ -3,6 +3,7 @@ using Akka.Persistence;
 using RU.Challenge.Domain.Commands;
 using RU.Challenge.Domain.Events;
 using RU.Challenge.Infrastructure.Akka.Snapshot;
+using RU.Challenge.Infrastructure.Akka.States;
 using System;
 
 namespace RU.Challenge.Infrastructure.Akka.Actors
@@ -10,10 +11,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
     public class TrackActor : PersistentActor
     {
         private Guid _id;
-        private Domain.Entities.Track _state;
-
-        private Guid _genreId;
-        private Guid _artistId;
+        private TrackState _state;
 
         public TrackActor(Guid id)
             => _id = id;
@@ -25,14 +23,8 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
             switch (message)
             {
                 case CreateTrackCommand createTrackCommand:
-                    var createTrackEvent = CreateTrackEvent.CreateFromCommand(createTrackCommand, _id);
+                    var createTrackEvent = CreateTrackEvent.CreateFromCommand(createTrackCommand);
                     Persist(createTrackEvent, CreateTrackEventHandler);
-                    SnapshotCheck();
-                    return true;
-
-                case SetTrackOrderCommand setTrackOrderCommand:
-                    var setTrackOrderEvent = SetTrackOrderEvent.CreateFromCommand(setTrackOrderCommand, _id);
-                    Persist(setTrackOrderEvent, SetTrackOrderEventHandler);
                     SnapshotCheck();
                     return true;
 
@@ -53,11 +45,7 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
                     return true;
 
                 case SnapshotOffer snapshotOffer:
-                    var snapshot = snapshotOffer.Snapshot as TrackAggregateSnapshot;
-                    _artistId = snapshot.ArtistId;
-                    _genreId = snapshot.GenreId;
-                    _state = Domain.Entities.Track.Create(snapshot.Id, snapshot.Name, snapshot.SongUrl);
-                    _state.SetOrder(snapshot.Order);
+                    _state = snapshotOffer.Snapshot as TrackState;
                     return true;
             }
 
@@ -67,22 +55,22 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
         private void SnapshotCheck()
         {
             if (LastSequenceNr != 0 && LastSequenceNr % 10 == 0)
-                SaveSnapshot(new TrackAggregateSnapshot(_id, _state.Name, _artistId, _genreId, _state.Order, _state.SongUrl));
+                SaveSnapshot(_state);
         }
 
         private void CreateTrackEventHandler(CreateTrackEvent createTrackEvent)
         {
-            _genreId = createTrackEvent.GenreId;
-            _artistId = createTrackEvent.ArtistId;
-            _state = Domain.Entities.Track.Create(createTrackEvent.Id, createTrackEvent.Name, createTrackEvent.SongUrl);
-        }
-
-        private void SetTrackOrderEventHandler(SetTrackOrderEvent setTrackOrderEvent)
-        {
-            _state.SetOrder(setTrackOrderEvent.Order);
+            _state = new TrackState(
+                createTrackEvent.Id,
+                createTrackEvent.ReleaseId,
+                createTrackEvent.Name,
+                createTrackEvent.SongUrl,
+                createTrackEvent.GenreId,
+                createTrackEvent.ArtistId,
+                createTrackEvent.Order);
         }
 
         public static Props GetProps(Guid id)
-            => Props.Create(() => new TrackActor(id));
+            => Props.Create(() => new ReleaseActor(id));
     }
 }

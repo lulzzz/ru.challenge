@@ -1,9 +1,8 @@
-﻿using RU.Challenge.Domain.Commands;
-using System;
+﻿using System;
 
-namespace RU.Challenge.Domain.Events
+namespace RU.Challenge.Infrastructure.Akka.States
 {
-    public class CreateTrackEvent
+    public class TrackState
     {
         public Guid Id { get; private set; }
 
@@ -19,7 +18,14 @@ namespace RU.Challenge.Domain.Events
 
         public int Order { get; private set; }
 
-        public CreateTrackEvent(Guid id, Guid releaseId, string name, string songUrl, Guid genreId, Guid artistId, int order)
+        public TrackState(
+            Guid id,
+            Guid releaseId,
+            string name, 
+            string songUrl,
+            Guid genreId,
+            Guid artistId,
+            int order)
         {
             Id = id;
             ReleaseId = releaseId;
@@ -29,8 +35,5 @@ namespace RU.Challenge.Domain.Events
             ArtistId = artistId;
             Order = order;
         }
-
-        public static CreateTrackEvent CreateFromCommand(CreateTrackCommand command)
-            => new CreateTrackEvent(command.TrackId, command.ReleaseId, command.Name, command.SongUrl, command.GenreId, command.ArtistId, command.Order);
     }
 }

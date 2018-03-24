@@ -7,6 +7,7 @@ using RU.Challenge.Domain.Entities;
 using RU.Challenge.Domain.Queries;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RU.Challenge.Presentation.API.Controllers
@@ -24,7 +25,7 @@ namespace RU.Challenge.Presentation.API.Controllers
         [Route("artists")]
         public async Task<IEnumerable<Artist>> GetArtists()
         {
-            return await _mediator.Send(new GetArtistsByNameQuery(name: null));
+            return await _mediator.Send(new GetArtistsByIdQuery(ids: null));
         }
 
         [HttpGet]
@@ -38,7 +39,7 @@ namespace RU.Challenge.Presentation.API.Controllers
         [Route("artists/id/{id}")]
         public async Task<Artist> GetArtistById([FromRoute] Guid id)
         {
-            return await _mediator.Send(new GetArtistByIdQuery(id));
+            return (await _mediator.Send(new GetArtistsByIdQuery(new[] { id }))).FirstOrDefault();
         }
 
         [HttpPost]

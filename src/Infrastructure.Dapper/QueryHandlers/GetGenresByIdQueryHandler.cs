@@ -10,17 +10,17 @@ using System.Threading.Tasks;
 
 namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
 {
-    public class GetDistributionPlatformsByIdQueryHandler : IRequestHandler<GetDistributionPlatformsByIdQuery, IEnumerable<DistributionPlatform>>
+    public class GetGenresByIdQueryHandler : IRequestHandler<GetGenresByIdQuery, IEnumerable<Genre>>
     {
         private readonly IDbConnection _dbConnection;
 
-        public GetDistributionPlatformsByIdQueryHandler(IDbConnection dbConnection)
+        public GetGenresByIdQueryHandler(IDbConnection dbConnection)
             => _dbConnection = dbConnection;
 
-        public async Task<IEnumerable<DistributionPlatform>> Handle(GetDistributionPlatformsByIdQuery request, CancellationToken cancellationToken)
+        public async Task<IEnumerable<Genre>> Handle(GetGenresByIdQuery request, CancellationToken cancellationToken)
         {
-            return await _dbConnection.QueryAsync<DistributionPlatform>(
-                sql: $"SELECT * FROM distribution_platform WHERE @Filter IS false OR id = ANY (@Ids)",
+            return await _dbConnection.QueryAsync<Genre>(
+                sql: $"SELECT * FROM genre WHERE @Filter IS false OR id = ANY (@Ids)",
                 param: new
                 {
                     Filter = request.Ids != null && request.Ids.Any(),

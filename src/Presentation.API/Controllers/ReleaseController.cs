@@ -7,6 +7,7 @@ using RU.Challenge.Domain.Queries;
 using RU.Challenge.Infrastructure.Identity.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RU.Challenge.Presentation.API.Controllers
@@ -24,26 +25,26 @@ namespace RU.Challenge.Presentation.API.Controllers
         [Route("releases")]
         public async Task<IEnumerable<Release>> GetReleases()
         {
-            return await _mediator.Send(new GetAllReleasesForUserQuery(User.Claims.GetUserId()));
+            return await _mediator.Send(new GetReleasesByIdForUserQuery(ids: null, userId: User.Claims.GetUserId()));
         }
 
         [HttpGet]
         [Route("releases/id/{id}")]
         public async Task<Release> GetReleseById([FromRoute] Guid id)
         {
-            return await _mediator.Send(new GetReleaseByIdForUserQuery(id, User.Claims.GetUserId()));
+            return (await _mediator.Send(new GetReleasesByIdForUserQuery(ids: new[] { id }, userId: User.Claims.GetUserId()))).FirstOrDefault();
         }
 
         [HttpPost]
         [Route("releases")]
         public async Task<IActionResult> AddRelease([FromBody] CreateReleaseCommand command)
         {
-            var artist = await _mediator.Send(new GetArtistByIdQuery(command.ArtistId));
+            var artist = await _mediator.Send(new GetArtistsByIdQuery(new[] { command.ArtistId }));
 
             if (artist == null)
                 return BadRequest($"The artist: {command.ArtistId} does not exist");
 
-            var genre = await _mediator.Send(new GetGenreByIdQuery(command.GenreId));
+            var genre = await _mediator.Send(new GetGenresByIdQuery(new[] { command.GenreId }));
 
             if (genre == null)
                 return BadRequest($"The genre: {command.GenreId} does not exist");
@@ -53,6 +54,30 @@ namespace RU.Challenge.Presentation.API.Controllers
             command.SetUserId(User.Claims.GetUserId());
             await _mediator.Send(command);
             return Created(new Uri($"{Request.Host}{Request.Path}/id/{releaseId}"), releaseId);
+        }
+
+        [HttpPost]
+        [Route("releases/{releaseId}/addtrack")]
+        public async Task<IActionResult> AddTrackToRelease([FromRoute] Guid releaseId, [FromBody] CreateTrackCommand command)
+        {
+            var release = await _mediator.Send(new GetReleasesByIdForUserQuery(new[] { releaseId }, User.Claims.GetUserId()));
+
+            if (release == null)
+                return BadRequest($"The release: {releaseId} does not exist");
+
+            var artist = await _mediator.Send(new GetArtistsByIdQuery(new[] { command.ArtistId }));
+
+            if (artist == null)
+                return BadRequest($"The artist: {command.ArtistId} does not exist");
+
+            var genre = await _mediator.Send(new GetGenresByIdQuery(new[] { command.GenreId }));
+
+            if (genre == null)
+                return BadRequest($"The genre: {command.GenreId} does not exist");
+
+            command.SetReleaseId(releaseId);
+            await _mediator.Send(command);
+            return Accepted();
         }
     }
 }
