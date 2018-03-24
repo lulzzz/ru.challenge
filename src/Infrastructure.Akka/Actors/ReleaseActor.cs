@@ -46,6 +46,13 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
                     SnapshotCheck();
                     return true;
 
+                case AddSubscriptionToReleaseCommand addSubscriptionToReleaseCommand:
+                    var addSubscriptionToReleaseEvent = AddSubscriptionToReleaseEvent.CreateFromCommand(addSubscriptionToReleaseCommand);
+                    Persist(addSubscriptionToReleaseEvent, AddSubscriptionToReleaseEventHandler);
+                    Context.System.EventStream.Publish(addSubscriptionToReleaseEvent);
+                    SnapshotCheck();
+                    return true;
+
                 case RecoveryCompleted recoveryCompleted:
                     Log.Info($"Artist with ID {PersistenceId} recovery completed");
                     return true;
@@ -64,6 +71,10 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
 
                 case CreateTrackEvent createTrackEvent:
                     CreateTrackEventHandler(createTrackEvent);
+                    return true;
+
+                case AddSubscriptionToReleaseEvent addSubscriptionToReleaseEvent:
+                    AddSubscriptionToReleaseEventHandler(addSubscriptionToReleaseEvent);
                     return true;
 
                 case SnapshotOffer snapshotOffer:
@@ -97,6 +108,12 @@ namespace RU.Challenge.Infrastructure.Akka.Actors
         private void CreateTrackEventHandler(CreateTrackEvent createTrackEvent)
         {
             _state.Tracks.Add(createTrackEvent.Id);
+        }
+
+        private void AddSubscriptionToReleaseEventHandler(AddSubscriptionToReleaseEvent addSubscriptionToReleaseEvent)
+        {
+            _state.Status = ReleaseStatus.Published;
+            _state.SubscriptionId = addSubscriptionToReleaseEvent.SubscriptionId;
         }
 
         public static Props GetProps(Guid id)

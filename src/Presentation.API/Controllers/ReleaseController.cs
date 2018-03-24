@@ -69,12 +69,12 @@ namespace RU.Challenge.Presentation.API.Controllers
                 return BadRequest($@"The field(s) {string.Join(", ", ModelState
                     .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
 
-            var release = await _mediator.Send(new GetReleaseStateByIdForUserQuery(releaseId, User.Claims.GetUserId()));
+            var releaseState = await _mediator.Send(new GetReleaseStateByIdForUserQuery(releaseId, User.Claims.GetUserId()));
 
-            if (release == null)
+            if (releaseState == null)
                 return BadRequest($"The release: {releaseId} does not exist");
 
-            if (release == Domain.Enums.ReleaseStatus.Published)
+            if (releaseState == Domain.Enums.ReleaseStatus.Published)
                 return BadRequest($"Cannot add tracks to a published release");
 
             var artist = await _mediator.Send(new GetArtistsByIdQuery(new[] { command.ArtistId }));
@@ -113,6 +113,34 @@ namespace RU.Challenge.Presentation.API.Controllers
                 return BadRequest($"The release: {releaseId} does not have the track {trackId}");
 
             return Ok(await _mediator.Send(new GetTracksByIdQuery(new[] { trackId })));
+        }
+
+        [HttpPost]
+        [Route("releases/{releaseId}/subscription/{subscriptionId}")]
+        public async Task<IActionResult> AddSubscriptionToRelease([FromRoute] Guid releaseId, [FromRoute] Guid subscriptionId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest($@"The field(s) {string.Join(", ", ModelState
+                    .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
+            var releaseState = await _mediator.Send(new GetReleaseStateByIdForUserQuery(releaseId, User.Claims.GetUserId()));
+
+            if (releaseState == null)
+                return BadRequest($"The release: {releaseId} does not exist");
+
+            var existSubscription = await _mediator.Send(new ExistsSubscriptionByIdQuery(subscriptionId));
+
+            if (existSubscription == false)
+                return BadRequest($"The subscription: {subscriptionId} does not exist");
+
+            var subscription = await _mediator.Send(new GetReleaseSubscriptionByIdForUserQuery(releaseId, User.Claims.GetUserId()));
+
+            if (releaseState == Domain.Enums.ReleaseStatus.Published &&
+                (subscription != null && subscription.ExpirationDate > DateTimeOffset.Now))
+                return BadRequest($"The release: {releaseId} has an active subscription until {subscription.ExpirationDate.ToString("dd/MM/yyyy HH:mm")}");
+            
+            await _mediator.Send(new AddSubscriptionToReleaseCommand(releaseId, subscriptionId));
+            return Accepted();
         }
     }
 }

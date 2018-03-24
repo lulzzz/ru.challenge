@@ -18,11 +18,11 @@ namespace RU.Challenge.Infrastructure.Akka.States
 
         public IList<Guid> Tracks { get; private set; }
 
-        public Guid SubscriptionId { get; private set; }
+        public Guid SubscriptionId { get; internal set; }
 
         public Guid UserId { get; private set; }
 
-        public ReleaseStatus Status { get; private set; }
+        public ReleaseStatus Status { get; internal set; }
 
         public ReleaseState(
             Guid id,

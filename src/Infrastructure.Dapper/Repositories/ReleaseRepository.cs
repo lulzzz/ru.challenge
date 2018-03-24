@@ -30,5 +30,17 @@ namespace RU.Challenge.Infrastructure.Dapper.Repositories
                     Status = ReleaseStatus.Created.ToString()
                 });
         }
+
+        public async Task AddSubscriptionAsync(AddSubscriptionToReleaseEvent @event)
+        {
+            await _dbConnection.ExecuteAsync(
+                sql: $"UPDATE release SET subscription_id = @SubscriptionId, status = @Status WHERE id = @ReleaseId",
+                param: new
+                {
+                    @event.SubscriptionId,
+                    @event.ReleaseId,
+                    Status = ReleaseStatus.Published.ToString()
+                });
+        }
     }
 }
