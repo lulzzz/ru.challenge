@@ -79,8 +79,8 @@ namespace RU.Challenge.Presentation.API.Controllers
                 return BadRequest($@"The field(s) {string.Join(", ", ModelState
                     .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
 
-            //if (!coverArt.ContentType.Contains("mp3") || !covert)
-            //    return BadRequest($"The uploaded file is not an image");
+            if (!song.ContentType.Contains("audio"))
+                return BadRequest($"The uploaded file is not an image");
 
             var releaseState = await _mediator.Send(new GetReleaseStateByIdForUserQuery(releaseId, User.Claims.GetUserId()));
 
