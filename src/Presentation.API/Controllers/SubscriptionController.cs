@@ -71,7 +71,7 @@ namespace RU.Challenge.Presentation.API.Controllers
             var subscriptionId = Guid.NewGuid();
             command.SetId(subscriptionId);
             await _mediator.Send(command);
-            return Created(new Uri($"{Request.Host}{Request.Path}/id/{subscriptionId}"), subscriptionId);
+            return Created($"{Request.Host}{Request.Path}/id/{subscriptionId}", subscriptionId);
         }
 
         [HttpPost]
