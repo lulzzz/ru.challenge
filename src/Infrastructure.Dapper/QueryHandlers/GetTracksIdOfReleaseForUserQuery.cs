@@ -18,9 +18,9 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
 
         public async Task<IEnumerable<Guid>> Handle(GetTracksIdOfReleaseForUserQuery request, CancellationToken cancellationToken)
         {
-            return (await _dbConnection.QueryFirstAsync<QueryResult>(
+            return (await _dbConnection.QueryFirstOrDefaultAsync<QueryResult>(
                 sql: @"SELECT ARRAY(SELECT t.id FROM track t WHERE release_id = r.id) as ""TrackIds"" FROM release r WHERE id = @Id AND user_id = @UserId",
-                param: new { Id = request.ReleaseId, request.UserId })).TrackIds;
+                param: new { Id = request.ReleaseId, request.UserId }))?.TrackIds;
         }
 
         internal class QueryResult

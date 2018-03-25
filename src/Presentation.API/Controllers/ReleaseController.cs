@@ -65,12 +65,12 @@ namespace RU.Challenge.Presentation.API.Controllers
 
             var artist = await _mediator.Send(new GetArtistsByIdQuery(new[] { artistId }));
 
-            if (artist == null)
+            if (artist == null || !artist.Any())
                 return BadRequest($"The artist: {artistId} does not exist");
 
             var genre = await _mediator.Send(new GetGenresByIdQuery(new[] { genreId }));
 
-            if (genre == null)
+            if (genre == null || !genre.Any())
                 return BadRequest($"The genre: {genreId} does not exist");
 
             var releaseId = Guid.NewGuid();
@@ -103,12 +103,12 @@ namespace RU.Challenge.Presentation.API.Controllers
 
             var artist = await _mediator.Send(new GetArtistsByIdQuery(new[] { artistId }));
 
-            if (artist == null)
+            if (artist == null || !artist.Any())
                 return BadRequest($"The artist: {artistId} does not exist");
 
             var genre = await _mediator.Send(new GetGenresByIdQuery(new[] { genreId }));
 
-            if (genre == null)
+            if (genre == null || !genre.Any())
                 return BadRequest($"The genre: {genreId} does not exist");
 
             var trackId = Guid.NewGuid();

@@ -65,7 +65,7 @@ namespace RU.Challenge.Presentation.API.Controllers
 
             var paymentMethod = await _mediator.Send(new GetPaymentMethodsByIdQuery(new[] { command.PaymentMethodId }));
 
-            if (paymentMethod == null)
+            if (paymentMethod == null || !paymentMethod.Any())
                 return BadRequest($"The payment method: {command.PaymentMethodId} does not exist");
 
             var subscriptionId = Guid.NewGuid();
