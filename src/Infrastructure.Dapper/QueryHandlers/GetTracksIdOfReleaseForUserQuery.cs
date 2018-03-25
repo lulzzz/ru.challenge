@@ -25,7 +25,7 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
 
         internal class QueryResult
         {
-            internal IEnumerable<Guid> TrackIds { get; set; } 
+            internal IEnumerable<Guid> TrackIds { get; set; }
         }
     }
 }

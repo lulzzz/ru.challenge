@@ -27,6 +27,5 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
 
             return (ReleaseStatus)Enum.Parse(typeof(ReleaseStatus), status);
         }
-
     }
 }

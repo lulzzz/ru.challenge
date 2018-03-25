@@ -1,7 +1,6 @@
 ﻿using RU.Challenge.Domain.Enums;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace RU.Challenge.Infrastructure.Dapper.DTO
 {

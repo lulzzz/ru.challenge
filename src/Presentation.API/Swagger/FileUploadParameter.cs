@@ -22,6 +22,21 @@ namespace RU.Challenge.Presentation.API.Swagger
                 });
                 operation.Consumes.Add("multipart/form-data");
             }
+
+            if (operation.OperationId == "ApiReleasesByReleaseIdTrackByNameByArtistIdByGenreIdPost")
+            {
+                var item = operation.Parameters.Single(e => e.Name == "song");
+                operation.Parameters.Remove(item);
+
+                operation.Parameters.Add(new NonBodyParameter
+                {
+                    Name = "song",
+                    In = "formData",
+                    Required = true,
+                    Type = "file"
+                });
+                operation.Consumes.Add("multipart/form-data");
+            }
         }
     }
 }

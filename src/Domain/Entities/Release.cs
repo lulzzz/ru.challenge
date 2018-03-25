@@ -1,5 +1,4 @@
 ﻿using RU.Challenge.Domain.Enums;
-using RU.Challenge.Domain.Exceptions;
 using System;
 using System.Collections.Immutable;
 
@@ -25,7 +24,7 @@ namespace RU.Challenge.Domain.Entities
 
         public void SetArtist(Artist artist)
             => Artist = artist;
-        
+
         public void SetGenre(Genre genre)
             => Genre = genre;
 

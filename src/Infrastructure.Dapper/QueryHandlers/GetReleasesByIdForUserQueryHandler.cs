@@ -35,7 +35,7 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
                         r.subscription_id as ""SubscriptionId"",
 	                    ARRAY(SELECT t.id FROM track t WHERE release_id = r.id) as ""TracksIds""
                         from release r
-                        WHERE r.user_id = @UserId AND @Filter IS false OR id = ANY (@Ids)",
+                        WHERE r.user_id = @UserId AND @Filter IS false OR r.id = ANY (@Ids)",
                 param: new
                 {
                     request.UserId,

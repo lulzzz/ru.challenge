@@ -2,7 +2,6 @@
 using Akka.Persistence;
 using RU.Challenge.Domain.Commands;
 using RU.Challenge.Domain.Events;
-using RU.Challenge.Infrastructure.Akka.Snapshot;
 using RU.Challenge.Infrastructure.Akka.States;
 using System;
 

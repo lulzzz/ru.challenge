@@ -21,7 +21,7 @@ namespace RU.Challenge.Infrastructure.Akka.States
         public TrackState(
             Guid id,
             Guid releaseId,
-            string name, 
+            string name,
             string songUrl,
             Guid genreId,
             Guid artistId,

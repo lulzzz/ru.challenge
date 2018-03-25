@@ -1,5 +1,4 @@
-﻿using Google.Cloud.Storage.V1;
-using Infrastructure.Uploaders;
+﻿using Infrastructure.Uploaders;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -11,7 +10,6 @@ using RU.Challenge.Domain.Queries;
 using RU.Challenge.Infrastructure.Identity.Extensions;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -73,12 +71,16 @@ namespace RU.Challenge.Presentation.API.Controllers
         }
 
         [HttpPost]
-        [Route("releases/{releaseId}/track")]
-        public async Task<IActionResult> AddTrackToRelease([FromRoute] Guid releaseId, [FromBody] CreateTrackCommand command)
+        [Route("releases/{releaseId}/track/{name}/{artistId}/{genreId}")]
+        public async Task<IActionResult> AddTrackToRelease(IFormFile song,
+            [FromRoute] Guid releaseId, [FromRoute] string name, [FromRoute] Guid artistId, [FromRoute] Guid genreId)
         {
             if (!ModelState.IsValid)
                 return BadRequest($@"The field(s) {string.Join(", ", ModelState
                     .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
+
+            //if (!coverArt.ContentType.Contains("mp3") || !covert)
+            //    return BadRequest($"The uploaded file is not an image");
 
             var releaseState = await _mediator.Send(new GetReleaseStateByIdForUserQuery(releaseId, User.Claims.GetUserId()));
 
@@ -88,21 +90,21 @@ namespace RU.Challenge.Presentation.API.Controllers
             if (releaseState == Domain.Enums.ReleaseStatus.Published)
                 return BadRequest($"Cannot add tracks to a published release");
 
-            var artist = await _mediator.Send(new GetArtistsByIdQuery(new[] { command.ArtistId }));
+            var artist = await _mediator.Send(new GetArtistsByIdQuery(new[] { artistId }));
 
             if (artist == null)
-                return BadRequest($"The artist: {command.ArtistId} does not exist");
+                return BadRequest($"The artist: {artistId} does not exist");
 
-            var genre = await _mediator.Send(new GetGenresByIdQuery(new[] { command.GenreId }));
+            var genre = await _mediator.Send(new GetGenresByIdQuery(new[] { genreId }));
 
             if (genre == null)
-                return BadRequest($"The genre: {command.GenreId} does not exist");
+                return BadRequest($"The genre: {genreId} does not exist");
 
             var trackId = Guid.NewGuid();
-            command.SetReleaseId(releaseId);
-            command.SetTrackId(trackId);
+            var songUrl = await _fileUploader.UploadFileAsync(song.FileName, song.ContentType, song.OpenReadStream());
+            var command = new CreateTrackCommand(name, songUrl, genreId, artistId, releaseId, trackId);
             await _mediator.Send(command);
-            return Created(new Uri($"{Request.Host}{Request.Path}/{releaseId}/track/{trackId}"), trackId);
+            return Created(new Uri($"{Request.Host}/releases/{releaseId}/track/{trackId}"), trackId);
         }
 
         [HttpGet]
