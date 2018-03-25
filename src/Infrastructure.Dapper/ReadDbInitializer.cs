@@ -14,8 +14,8 @@ namespace RU.Challenge.Infrastructure.Dapper
 
         public ReadDbInitializer(IDbConnection dbConnection, ILogger<ReadDbInitializer> logger)
         {
-            _logger = logger;
-            _dbConnection = dbConnection;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
         }
 
         public async Task Init()

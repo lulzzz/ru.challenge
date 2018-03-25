@@ -8,6 +8,9 @@ namespace RU.Challenge.Infrastructure.Akka.Projection
     {
         public DistributionPlatformProjectionActor(IDistributionPlatformRepository distributionPlatformRepository)
         {
+            if (distributionPlatformRepository == null)
+                throw new System.ArgumentNullException(nameof(distributionPlatformRepository));
+
             Receive<CreateDistributionPlatformEvent>(e => distributionPlatformRepository.AddAsync(e));
         }
 

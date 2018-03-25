@@ -13,7 +13,7 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
         private readonly IDbConnection _dbConnection;
 
         public GetReleaseSubscriptionByIdForUserQueryHandler(IDbConnection dbConnection)
-            => _dbConnection = dbConnection;
+            => _dbConnection = dbConnection ?? throw new System.ArgumentNullException(nameof(dbConnection));
 
         public async Task<Subscription> Handle(GetReleaseSubscriptionByIdForUserQuery request, CancellationToken cancellationToken)
         {

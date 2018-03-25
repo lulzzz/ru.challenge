@@ -14,7 +14,7 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
         private readonly IDbConnection _dbConnection;
 
         public GetTracksIdOfReleaseForUserQueryHandler(IDbConnection dbConnection)
-            => _dbConnection = dbConnection;
+            => _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
 
         public async Task<IEnumerable<Guid>> Handle(GetTracksIdOfReleaseForUserQuery request, CancellationToken cancellationToken)
         {

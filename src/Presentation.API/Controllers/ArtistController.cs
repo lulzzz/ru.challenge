@@ -20,20 +20,30 @@ namespace RU.Challenge.Presentation.API.Controllers
         private readonly IMediator _mediator;
 
         public ArtistController(IMediator mediator)
-            => _mediator = mediator;
+            => _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
         [HttpGet]
         [Route("artists")]
-        public async Task<IEnumerable<Artist>> GetArtists()
+        public async Task<IActionResult> GetArtists()
         {
-            return await _mediator.Send(new GetArtistsByIdQuery(ids: null));
+            var items = await _mediator.Send(new GetArtistsByIdQuery(ids: null));
+
+            if (items == null || !items.Any())
+                return NotFound();
+            else
+                return Ok(items);
         }
 
         [HttpGet]
         [Route("artists/name/{name}")]
-        public async Task<IEnumerable<Artist>> GetArtistsByName([FromRoute] string name)
+        public async Task<IActionResult> GetArtistsByName([FromRoute] string name)
         {
-            return await _mediator.Send(new GetArtistsByNameQuery(name));
+            var items = await _mediator.Send(new GetArtistsByNameQuery(name));
+
+            if (items == null || !items.Any())
+                return NotFound();
+            else
+                return Ok(items);
         }
 
         [HttpGet]
@@ -44,7 +54,12 @@ namespace RU.Challenge.Presentation.API.Controllers
                 return BadRequest($@"The field(s) {string.Join(", ", ModelState
                     .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
 
-            return Ok((await _mediator.Send(new GetArtistsByIdQuery(new[] { id }))).FirstOrDefault());
+            var item = (await _mediator.Send(new GetArtistsByIdQuery(new[] { id }))).FirstOrDefault();
+
+            if (item == null)
+                return NotFound();
+            else
+                return Ok(item);
         }
 
         [HttpPost]
@@ -58,7 +73,7 @@ namespace RU.Challenge.Presentation.API.Controllers
             var artistId = Guid.NewGuid();
             command.SetId(artistId);
             await _mediator.Send(command);
-            return Created(new Uri($"{Request.Host}{Request.Path}/id/{artistId}"), artistId);
+            return Created($"{Request.Host}{Request.Path}/id/{artistId}", artistId);
         }
     }
 }

@@ -24,15 +24,20 @@ namespace RU.Challenge.Presentation.API.Controllers
 
         public ReleaseController(IMediator mediator, IFileUploader fileUploader)
         {
-            _mediator = mediator;
-            _fileUploader = fileUploader;
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _fileUploader = fileUploader ?? throw new ArgumentNullException(nameof(fileUploader));
         }
 
         [HttpGet]
         [Route("releases")]
-        public async Task<IEnumerable<Release>> GetReleases()
+        public async Task<IActionResult> GetReleases()
         {
-            return await _mediator.Send(new GetReleasesByIdForUserQuery(ids: null, userId: User.Claims.GetUserId()));
+            var items = await _mediator.Send(new GetReleasesByIdForUserQuery(ids: null, userId: User.Claims.GetUserId()));
+
+            if (items == null || !items.Any())
+                return NotFound();
+            else
+                return Ok(items);
         }
 
         [HttpGet]
@@ -43,7 +48,12 @@ namespace RU.Challenge.Presentation.API.Controllers
                 return BadRequest($@"The field(s) {string.Join(", ", ModelState
                     .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
 
-            return Ok((await _mediator.Send(new GetReleasesByIdForUserQuery(ids: new[] { id }, userId: User.Claims.GetUserId()))).FirstOrDefault());
+            var item = (await _mediator.Send(new GetReleasesByIdForUserQuery(ids: new[] { id }, userId: User.Claims.GetUserId()))).FirstOrDefault();
+
+            if (item == null)
+                return NotFound();
+            else
+                return Ok(item);
         }
 
         [HttpPost]
@@ -67,7 +77,8 @@ namespace RU.Challenge.Presentation.API.Controllers
             var coverArtUrl = await _fileUploader.UploadFileAsync(coverArt.FileName, coverArt.ContentType, coverArt.OpenReadStream());
             var command = new CreateReleaseCommand(title, artistId, genreId, releaseId, User.Claims.GetUserId(), coverArtUrl);
             await _mediator.Send(command);
-            return Created(new Uri($"{Request.Host}/releases/id/{releaseId}"), releaseId);
+
+            return Created($"{Request.Host}/releases/id/{releaseId}", releaseId);
         }
 
         [HttpPost]
@@ -104,7 +115,7 @@ namespace RU.Challenge.Presentation.API.Controllers
             var songUrl = await _fileUploader.UploadFileAsync(song.FileName, song.ContentType, song.OpenReadStream());
             var command = new CreateTrackCommand(name, songUrl, genreId, artistId, releaseId, trackId);
             await _mediator.Send(command);
-            return Created(new Uri($"{Request.Host}/releases/{releaseId}/track/{trackId}"), trackId);
+            return Created($"{Request.Host}/releases/{releaseId}/track/{trackId}", trackId);
         }
 
         [HttpGet]
@@ -125,7 +136,12 @@ namespace RU.Challenge.Presentation.API.Controllers
             if (!validTrackId)
                 return BadRequest($"The release: {releaseId} does not have the track {trackId}");
 
-            return Ok(await _mediator.Send(new GetTracksByIdQuery(new[] { trackId })));
+            var item = (await _mediator.Send(new GetTracksByIdQuery(new[] { trackId }))).FirstOrDefault();
+
+            if (item == null)
+                return NotFound();
+            else
+                return Ok(item);
         }
 
         [HttpPost]

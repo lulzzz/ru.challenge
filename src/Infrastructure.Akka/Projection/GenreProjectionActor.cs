@@ -8,6 +8,9 @@ namespace RU.Challenge.Infrastructure.Akka.Projection
     {
         public GenreProjectionActor(IGenreRepository genreRepository)
         {
+            if (genreRepository == null)
+                throw new System.ArgumentNullException(nameof(genreRepository));
+
             Receive<CreateGenreEvent>(e => genreRepository.AddAsync(e));
         }
 

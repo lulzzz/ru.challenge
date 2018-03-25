@@ -15,9 +15,9 @@ namespace Infrastructure.Uploaders
             string imagesBucket,
             StorageClient storageClient)
         {
-            _songsBucket = songsBucket;
-            _imagesBucket = imagesBucket;
-            _storageClient = storageClient;
+            _songsBucket = songsBucket ?? throw new System.ArgumentNullException(nameof(songsBucket));
+            _imagesBucket = imagesBucket ?? throw new System.ArgumentNullException(nameof(imagesBucket));
+            _storageClient = storageClient ?? throw new System.ArgumentNullException(nameof(storageClient));
         }
 
         public async Task<string> UploadFileAsync(string fileName, string contentType, Stream content)

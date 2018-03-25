@@ -12,7 +12,7 @@ namespace RU.Challenge.Infrastructure.Akka.CommandHandlers
         private readonly ActorSystem _actorSystem;
 
         public CreateTrackCommandHandler(ActorSystem actorSystem)
-            => _actorSystem = actorSystem;
+            => _actorSystem = actorSystem ?? throw new System.ArgumentNullException(nameof(actorSystem));
 
         public Task Handle(CreateTrackCommand message, CancellationToken cancellationToken)
         {

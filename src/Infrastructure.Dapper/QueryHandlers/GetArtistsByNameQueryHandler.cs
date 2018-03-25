@@ -14,7 +14,7 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
         private readonly IDbConnection _dbConnection;
 
         public GetArtistsByNameQueryHandler(IDbConnection dbConnection)
-            => _dbConnection = dbConnection;
+            => _dbConnection = dbConnection ?? throw new System.ArgumentNullException(nameof(dbConnection));
 
         public async Task<IEnumerable<Artist>> Handle(GetArtistsByNameQuery request, CancellationToken cancellationToken)
         {

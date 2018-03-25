@@ -12,7 +12,7 @@ namespace RU.Challenge.Infrastructure.Akka.CommandHandlers
         private readonly ActorSystem _actorSystem;
 
         public CreatePaymentMethodCommandHandler(ActorSystem actorSystem)
-            => _actorSystem = actorSystem;
+            => _actorSystem = actorSystem ?? throw new System.ArgumentNullException(nameof(actorSystem));
 
         public Task Handle(CreatePaymentMethodCommand message, CancellationToken cancellationToken)
         {

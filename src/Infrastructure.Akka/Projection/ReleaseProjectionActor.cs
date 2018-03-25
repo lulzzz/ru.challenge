@@ -8,6 +8,9 @@ namespace RU.Challenge.Infrastructure.Akka.Projection
     {
         public ReleaseProjectionActor(IReleaseRepository releaseRepository)
         {
+            if (releaseRepository == null)
+                throw new System.ArgumentNullException(nameof(releaseRepository));
+
             Receive<CreateReleaseEvent>(e => releaseRepository.AddAsync(e));
             Receive<AddSubscriptionToReleaseEvent>(e => releaseRepository.AddSubscriptionAsync(e));
         }

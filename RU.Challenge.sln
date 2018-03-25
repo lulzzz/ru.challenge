@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Presentation.API", "src\Presentation.API\Presentation.API.csproj", "{57311BB5-B724-4199-8B49-5654C3E189F3}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Domain", "src\Domain\Domain.csproj", "{698DAF12-8A29-426C-A185-CBC5D6FF9D0D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{47D8F30A-7FA4-4654-B89F-4C1C1DD8894E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.Akka", "src\Infrastructure.Akka\Infrastructure.Akka.csproj", "{721A5D45-369C-4436-AABD-3E2A62684C81}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Presentation.API", "src\Presentation.API\Presentation.API.csproj", "{57311BB5-B724-4199-8B49-5654C3E189F3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.Dapper", "src\Infrastructure.Dapper\Infrastructure.Dapper.csproj", "{3E03522A-7EE4-4DEA-8D2B-E7109D34BDD9}"
 EndProject

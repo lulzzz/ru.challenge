@@ -8,6 +8,9 @@ namespace RU.Challenge.Infrastructure.Akka.Projection
     {
         public ArtistProjectionActor(IArtistRepository artistRepository)
         {
+            if (artistRepository == null)
+                throw new System.ArgumentNullException(nameof(artistRepository));
+
             Receive<CreateArtistEvent>(e => artistRepository.AddAsync(e));
         }
 

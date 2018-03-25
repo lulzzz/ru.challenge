@@ -18,8 +18,8 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
 
         public GetTracksByIdQueryHandler(IMediator mediator, IDbConnection dbConnection)
         {
-            _mediator = mediator;
-            _dbConnection = dbConnection;
+            _mediator = mediator ?? throw new System.ArgumentNullException(nameof(mediator));
+            _dbConnection = dbConnection ?? throw new System.ArgumentNullException(nameof(dbConnection));
         }
 
         public async Task<IEnumerable<Track>> Handle(GetTracksByIdQuery request, CancellationToken cancellationToken)

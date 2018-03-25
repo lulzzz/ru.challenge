@@ -15,7 +15,7 @@ namespace RU.Challenge.Infrastructure.Dapper.QueryHandlers
         private readonly IDbConnection _dbConnection;
 
         public GetPaymentMethodsByIdQueryHandler(IDbConnection dbConnection)
-            => _dbConnection = dbConnection;
+            => _dbConnection = dbConnection ?? throw new System.ArgumentNullException(nameof(dbConnection));
 
         public async Task<IEnumerable<PaymentMethod>> Handle(GetPaymentMethodsByIdQuery request, CancellationToken cancellationToken)
         {

@@ -12,28 +12,23 @@ namespace RU.Challenge.Infrastructure.Dapper.Repositories
         private readonly IDbConnection _dbConnection;
 
         public TrackRepository(IDbConnection dbConnection)
-            => _dbConnection = dbConnection;
+            => _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
 
         public async Task AddAsync(CreateTrackEvent @event)
         {
-            try
-            {
-                await _dbConnection.ExecuteAsync(
-                    sql: $"INSERT INTO track (id, release_id, name, song_url, artist_id, genre_id, track_order) " +
-                         $"VALUES (@Id, @ReleaseId, @Name, @SongUrl, @ArtistId, @GenreId, @Order)",
-                    param: new
-                    {
-                        @event.Id,
-                        @event.ReleaseId,
-                        @event.Name,
-                        @event.SongUrl,
-                        @event.ArtistId,
-                        @event.GenreId,
-                        @event.Order
-                    });
-            }
-            catch (Exception e)
-            { }
+            await _dbConnection.ExecuteAsync(
+                sql: $"INSERT INTO track (id, release_id, name, song_url, artist_id, genre_id, track_order) " +
+                     $"VALUES (@Id, @ReleaseId, @Name, @SongUrl, @ArtistId, @GenreId, @Order)",
+                param: new
+                {
+                    @event.Id,
+                    @event.ReleaseId,
+                    @event.Name,
+                    @event.SongUrl,
+                    @event.ArtistId,
+                    @event.GenreId,
+                    @event.Order
+                });
         }
     }
 }

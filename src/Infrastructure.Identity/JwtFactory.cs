@@ -18,9 +18,9 @@ namespace RU.Challenge.Infrastructure.Identity
             string audience,
             SigningCredentials signingCredentials)
         {
-            _issuer = issuer;
-            _audience = audience;
-            _signingCredentials = signingCredentials;
+            _issuer = issuer ?? throw new ArgumentNullException(nameof(issuer));
+            _audience = audience ?? throw new ArgumentNullException(nameof(audience));
+            _signingCredentials = signingCredentials ?? throw new ArgumentNullException(nameof(signingCredentials));
         }
 
         public string GenerateToken(

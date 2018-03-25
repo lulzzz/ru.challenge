@@ -8,6 +8,9 @@ namespace RU.Challenge.Infrastructure.Akka.Projection
     {
         public TrackProjectionActor(ITrackRepository trackRepository)
         {
+            if (trackRepository == null)
+                throw new System.ArgumentNullException(nameof(trackRepository));
+
             Receive<CreateTrackEvent>(e => trackRepository.AddAsync(e));
         }
 

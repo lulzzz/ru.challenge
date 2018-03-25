@@ -8,6 +8,9 @@ namespace RU.Challenge.Infrastructure.Akka.Projection
     {
         public SubscriptionProjectionActor(ISubscriptionRepository subscriptionRepository)
         {
+            if (subscriptionRepository == null)
+                throw new System.ArgumentNullException(nameof(subscriptionRepository));
+
             Receive<CreateSubscriptionEvent>(e => subscriptionRepository.AddAsync(e));
             Receive<AddDistributionPlatformToSubscriptionEvent>(e => subscriptionRepository.AddDistributionPlatformAsync(e));
         }

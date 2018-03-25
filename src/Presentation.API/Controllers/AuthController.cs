@@ -30,10 +30,10 @@ namespace RU.Challenge.Presentation.API.Controllers
             RoleManager<Role> roleManager,
             SignInManager<User> signInManager)
         {
-            _jwtFactory = jwtFactory;
-            _userManager = userManager;
-            _roleManager = roleManager;
-            _signInManager = signInManager;
+            _jwtFactory = jwtFactory ?? throw new ArgumentNullException(nameof(jwtFactory));
+            _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+            _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+            _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         }
 
         [HttpPost]

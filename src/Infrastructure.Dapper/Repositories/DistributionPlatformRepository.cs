@@ -11,7 +11,7 @@ namespace RU.Challenge.Infrastructure.Dapper.Repositories
         private readonly IDbConnection _dbConnection;
 
         public DistributionPlatformRepository(IDbConnection dbConnection)
-            => _dbConnection = dbConnection;
+            => _dbConnection = dbConnection ?? throw new System.ArgumentNullException(nameof(dbConnection));
 
         public async Task AddAsync(CreateDistributionPlatformEvent @event)
         {

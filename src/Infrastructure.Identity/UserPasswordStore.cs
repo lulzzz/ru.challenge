@@ -16,7 +16,7 @@ namespace RU.Challenge.Infrastructure.Identity
         private readonly IDbConnection _dbConnection;
 
         public UserPasswordStore(IDbConnection dbConnection)
-            => _dbConnection = dbConnection;
+            => _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
 
         public async Task<IdentityResult> CreateAsync(User user, CancellationToken cancellationToken)
         {

@@ -20,13 +20,18 @@ namespace RU.Challenge.Presentation.API.Controllers
         private readonly IMediator _mediator;
 
         public PaymentMethodController(IMediator mediator)
-            => _mediator = mediator;
+            => _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
         [HttpGet]
         [Route("paymentmethods")]
-        public async Task<IEnumerable<PaymentMethod>> GetPaymentMethods()
+        public async Task<IActionResult> GetPaymentMethods()
         {
-            return await _mediator.Send(new GetPaymentMethodsByIdQuery(ids: null));
+            var items = await _mediator.Send(new GetPaymentMethodsByIdQuery(ids: null));
+
+            if (items == null || !items.Any())
+                return NotFound();
+            else
+                return Ok(items);
         }
 
         [HttpGet]
@@ -37,7 +42,12 @@ namespace RU.Challenge.Presentation.API.Controllers
                 return BadRequest($@"The field(s) {string.Join(", ", ModelState
                     .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
 
-            return Ok((await _mediator.Send(new GetPaymentMethodsByIdQuery(new[] { id }))).FirstOrDefault());
+            var item = (await _mediator.Send(new GetPaymentMethodsByIdQuery(new[] { id }))).FirstOrDefault();
+
+            if (item == null)
+                return NotFound();
+            else
+                return Ok(item);
         }
 
         [HttpPost]
@@ -51,7 +61,7 @@ namespace RU.Challenge.Presentation.API.Controllers
             var paymentMethodId = Guid.NewGuid();
             command.SetId(paymentMethodId);
             await _mediator.Send(command);
-            return Created(new Uri($"{Request.Host}{Request.Path}/id/{paymentMethodId}"), paymentMethodId);
+            return Created($"{Request.Host}{Request.Path}/id/{paymentMethodId}", paymentMethodId);
         }
     }
 }

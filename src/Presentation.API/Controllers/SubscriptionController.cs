@@ -20,13 +20,18 @@ namespace RU.Challenge.Presentation.API.Controllers
         private readonly IMediator _mediator;
 
         public SubscriptionController(IMediator mediator)
-            => _mediator = mediator;
+            => _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
         [HttpGet]
         [Route("subscriptions")]
-        public async Task<IEnumerable<Subscription>> GetSubscriptions()
+        public async Task<IActionResult> GetSubscriptions()
         {
-            return await _mediator.Send(new GetSubscriptionsByIdQuery(ids: null));
+            var items = await _mediator.Send(new GetSubscriptionsByIdQuery(ids: null));
+
+            if (items == null || !items.Any())
+                return NotFound();
+            else
+                return Ok(items);
         }
 
         [HttpGet]
@@ -37,7 +42,12 @@ namespace RU.Challenge.Presentation.API.Controllers
                 return BadRequest($@"The field(s) {string.Join(", ", ModelState
                     .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
 
-            return Ok((await _mediator.Send(new GetSubscriptionsByIdQuery(new[] { id }))).FirstOrDefault());
+            var item = (await _mediator.Send(new GetSubscriptionsByIdQuery(new[] { id }))).FirstOrDefault();
+
+            if (item == null)
+                return NotFound();
+            else
+                return Ok(item);
         }
 
         [HttpPost]

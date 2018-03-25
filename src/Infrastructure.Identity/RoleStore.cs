@@ -13,7 +13,7 @@ namespace RU.Challenge.Infrastructure.Identity
         private readonly IDbConnection _dbConnection;
 
         public RoleStore(IDbConnection dbConnection)
-            => _dbConnection = dbConnection;
+            => _dbConnection = dbConnection ?? throw new ArgumentNullException(nameof(dbConnection));
 
         public async Task<IdentityResult> CreateAsync(Role role, CancellationToken cancellationToken)
         {

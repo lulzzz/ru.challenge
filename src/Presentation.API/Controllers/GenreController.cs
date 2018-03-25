@@ -20,13 +20,18 @@ namespace RU.Challenge.Presentation.API.Controllers
         private readonly IMediator _mediator;
 
         public GenreController(IMediator mediator)
-            => _mediator = mediator;
+            => _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
 
         [HttpGet]
         [Route("genres")]
-        public async Task<IEnumerable<Genre>> GetGenres()
+        public async Task<IActionResult> GetGenres()
         {
-            return await _mediator.Send(new GetGenresByIdQuery(ids: null));
+            var items = await _mediator.Send(new GetGenresByIdQuery(ids: null));
+
+            if (items == null || !items.Any())
+                return NotFound();
+            else
+                return Ok(items);
         }
 
         [HttpGet]
@@ -37,7 +42,12 @@ namespace RU.Challenge.Presentation.API.Controllers
                 return BadRequest($@"The field(s) {string.Join(", ", ModelState
                     .Where(e => e.Value.ValidationState == ModelValidationState.Invalid).Select(e => e.Key))} are not valid");
 
-            return Ok((await _mediator.Send(new GetGenresByIdQuery(new[] { id }))).FirstOrDefault());
+            var item = (await _mediator.Send(new GetGenresByIdQuery(new[] { id }))).FirstOrDefault();
+
+            if (item == null)
+                return NotFound();
+            else
+                return Ok(item);
         }
 
         [HttpPost]
@@ -51,7 +61,7 @@ namespace RU.Challenge.Presentation.API.Controllers
             var genreId = Guid.NewGuid();
             command.SetId(genreId);
             await _mediator.Send(command);
-            return Created(new Uri($"{Request.Host}{Request.Path}/id/{genreId}"), genreId);
+            return Created($"{Request.Host}{Request.Path}/id/{genreId}", genreId);
         }
     }
 }
