@@ -4,7 +4,10 @@ using Akka.DI.AutoFac;
 using Akka.DI.Core;
 using Autofac;
 using Autofac.Core;
+using Google.Apis.Auth.OAuth2;
+using Google.Cloud.Storage.V1;
 using Infrastructure.Repositories;
+using Infrastructure.Uploaders;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -64,6 +67,7 @@ namespace RU.Challenge.Presentation.API
                     c.SwaggerDoc("v1", new Info { Title = "RU Challenge", Version = "v1" });
                     c.DescribeAllEnumsAsStrings();
                     c.OperationFilter<AddAuthorizationHeaderParameter>();
+                    c.OperationFilter<FileUploadParameter>();
                 });
 
             services
@@ -101,6 +105,22 @@ namespace RU.Challenge.Presentation.API
             RegisterAkka(builder);
             RegisterReadDatabase(builder);
             RegisterAuthDatabase(builder);
+            RegisterFileUploader(builder);
+        }
+
+        private void RegisterFileUploader(ContainerBuilder builder)
+        {
+            var json = System.IO.File.ReadAllText($"google.storage.{Environment.EnvironmentName}.json");
+
+            builder
+                .Register(e => StorageClient.Create(GoogleCredential.FromJson(json)))
+                .AsSelf();
+
+            builder
+                .RegisterType<GoogleFileUploader>()
+                .WithParameter("songsBucket", "imagesruchallenge")
+                .WithParameter("imagesBucket", "songsruchallenge")
+                .As<IFileUploader>();
         }
 
         private void RegisterCQRS(ContainerBuilder builder)

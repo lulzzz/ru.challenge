@@ -1,5 +1,8 @@
-﻿using MediatR;
+﻿using Google.Cloud.Storage.V1;
+using Infrastructure.Uploaders;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RU.Challenge.Domain.Commands;
@@ -8,6 +11,7 @@ using RU.Challenge.Domain.Queries;
 using RU.Challenge.Infrastructure.Identity.Extensions;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -18,9 +22,13 @@ namespace RU.Challenge.Presentation.API.Controllers
     public class ReleaseController : Controller
     {
         private readonly IMediator _mediator;
+        private readonly IFileUploader _fileUploader;
 
-        public ReleaseController(IMediator mediator)
-            => _mediator = mediator;
+        public ReleaseController(IMediator mediator, IFileUploader fileUploader)
+        {
+            _mediator = mediator;
+            _fileUploader = fileUploader;
+        }
 
         [HttpGet]
         [Route("releases")]
@@ -41,24 +49,27 @@ namespace RU.Challenge.Presentation.API.Controllers
         }
 
         [HttpPost]
-        [Route("releases")]
-        public async Task<IActionResult> AddRelease([FromBody] CreateReleaseCommand command)
+        [Route("releases/{title}/{artistId}/{genreId}")]
+        public async Task<IActionResult> AddRelease(IFormFile coverArt, [FromRoute] string title, [FromRoute] Guid artistId, [FromRoute] Guid genreId)
         {
-            var artist = await _mediator.Send(new GetArtistsByIdQuery(new[] { command.ArtistId }));
+            if (!coverArt.ContentType.Contains("image"))
+                return BadRequest($"The uploaded file is not an image");
+
+            var artist = await _mediator.Send(new GetArtistsByIdQuery(new[] { artistId }));
 
             if (artist == null)
-                return BadRequest($"The artist: {command.ArtistId} does not exist");
+                return BadRequest($"The artist: {artistId} does not exist");
 
-            var genre = await _mediator.Send(new GetGenresByIdQuery(new[] { command.GenreId }));
+            var genre = await _mediator.Send(new GetGenresByIdQuery(new[] { genreId }));
 
             if (genre == null)
-                return BadRequest($"The genre: {command.GenreId} does not exist");
+                return BadRequest($"The genre: {genreId} does not exist");
 
             var releaseId = Guid.NewGuid();
-            command.SetId(releaseId);
-            command.SetUserId(User.Claims.GetUserId());
+            var coverArtUrl = await _fileUploader.UploadFileAsync(coverArt.FileName, coverArt.ContentType, coverArt.OpenReadStream());
+            var command = new CreateReleaseCommand(title, artistId, genreId, releaseId, User.Claims.GetUserId(), coverArtUrl);
             await _mediator.Send(command);
-            return Created(new Uri($"{Request.Host}{Request.Path}/id/{releaseId}"), releaseId);
+            return Created(new Uri($"{Request.Host}/releases/id/{releaseId}"), releaseId);
         }
 
         [HttpPost]
@@ -138,7 +149,7 @@ namespace RU.Challenge.Presentation.API.Controllers
             if (releaseState == Domain.Enums.ReleaseStatus.Published &&
                 (subscription != null && subscription.ExpirationDate > DateTimeOffset.Now))
                 return BadRequest($"The release: {releaseId} has an active subscription until {subscription.ExpirationDate.ToString("dd/MM/yyyy HH:mm")}");
-            
+
             await _mediator.Send(new AddSubscriptionToReleaseCommand(releaseId, subscriptionId));
             return Accepted();
         }
