@@ -118,8 +118,8 @@ namespace RU.Challenge.Presentation.API
 
             builder
                 .RegisterType<GoogleFileUploader>()
-                .WithParameter("songsBucket", "imagesruchallenge")
-                .WithParameter("imagesBucket", "songsruchallenge")
+                .WithParameter("songsBucket", "songsruchallenge")
+                .WithParameter("imagesBucket", "imagesruchallenge")
                 .As<IFileUploader>();
         }
 
